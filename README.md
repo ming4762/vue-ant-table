@@ -1,24 +1,37 @@
-# vue-ant-table
+# 组件a-table-crud
 
-## Project setup
-```
-npm install
-```
+## Attributes
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+参数 | 说明 | 类型 | 可选值 | 默认值
+---|---|---|---|---
+queryUrl|查询URL|String||
+saveUpdateUrl|添加/修改URL|String||
+deleteUrl|删除URL|String||
+getUrl|查询URL，如果为设置通过queryUrl查询|String||
+keys|对应实体类的key（必须）|Array||
+apiService|后台请求服务|Function||
+data|表格数据，如果存在，则增删改查无效|Array||
+tableName|表格名字|String||
+opreaColumnWidth|操作列列宽|Number||200
+hasOpreaColumn|是否有操作列|Boolean||true
+columns|列信息（必选），详见column|Array || true
+hasLeftButton|是否有左侧操作列|Boolean ||true
+hasRightButton|是否有左侧操作列|Boolean ||true
+defaultSearchVisible|搜索栏是否默认显示|Boolean||false
+searchWithSymbol|搜索是否添加符号|Boolean||true
+queryParameterFormatter|参数格式化函数，参数：参数|Function|
+queryHandler|查询执行器，自定义查询，参数（查询url, 参数）|Function
+errorHandler|错误执行，参数（错误信息, 错误对象Error）|Function
+deleteWarningHandler | 删除警告语回调函数，参数：删除的列数据 |Function
+deleteHandler | 删除执行器，参数(删除URL，删除的key列表，删除的数据列表)，返回promise|Function
+saveUpdateFormatter|添加/修改格式化工具，参数(addEditModel，add/edit)|Function
+saveUpdateHandler|添加修改执行器，参数（saveUpdateUrl,model,add/edit）| Function
+showIndex|是否显示序号列|Boolean | | true
+rowSelection| 选中列配置，参考ant配置，不支持onChange，需要onChange请手动监听| Object
 
-### Compiles and minifies for production
-```
-npm run build
-```
+## Scoped Slot
+name | 说明 | 参数
+---|---|---
+row-operation|行操作列插槽|text：当前行内容，record：当前行数据内容，index：当前行序号
 
-### Lints and fixes files
-```
-npm run lint
-```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
