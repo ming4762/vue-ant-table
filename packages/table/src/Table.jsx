@@ -48,7 +48,7 @@ export default {
         }}
         columns={this.computedColumns}
         bordered={this.bordered}
-        size={this.size}></a-table>
+        size={this.size}/>
     )
   }
 }

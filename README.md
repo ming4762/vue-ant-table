@@ -28,10 +28,24 @@ saveUpdateFormatter|添加/修改格式化工具，参数(addEditModel，add/edi
 saveUpdateHandler|添加修改执行器，参数（saveUpdateUrl,model,add/edit）| Function
 showIndex|是否显示序号列|Boolean | | true
 rowSelection| 选中列配置，参考ant配置，不支持onChange，需要onChange请手动监听| Object
+defaultButtonConfig | 默认按钮配置，详见defaultButtonConfig| Object
+permissions | 用户权限列表| Array
+defaultSortColumn|默认的排序列，以逗号分页|String
+defaultSortOrder|默认的排序方向，以逗号分页，默认asc|String
+textRowButton|是否使用文字按钮| Boolean || false
 
 ## Scoped Slot
 name | 说明 | 参数
 ---|---|---
 row-operation|行操作列插槽|text：当前行内容，record：当前行数据内容，index：当前行序号
 
+
+## defaultButtonConfig
+> 对象的key包括 add、edit、delete
+
+name | 说明 | 默认值
+---|---|---
+row | 行按钮是否显示 | add: fasle，其他true
+top | 顶部按钮是否显示| true
+permission| 按钮所需权限| 
 

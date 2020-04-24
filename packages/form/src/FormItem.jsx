@@ -1,12 +1,3 @@
-<template>
-  <a-form-item :colon="false" :label="column.label">
-    <a-switch v-if="column.type === 'boolean'" v-decorator="getDecorator(column)"/>
-    <a-input-number v-if="column.type === 'number'" v-decorator="getDecorator(column)" :disabled="column.disabled"/>
-    <a-input v-if="column.type === 'input'" :placeholder="getPlaceholder(column)" v-decorator="getDecorator(column)" :disabled="column.disabled"/>
-  </a-form-item>
-</template>
-
-<script>
 export default {
   name: 's-form-item',
   props: {
@@ -61,10 +52,31 @@ export default {
       }
       return null
     }
+  },
+  render (h) {
+    const $this = this
+    return (
+      <a-form-item
+        {...{
+          props: this.$attrs,
+          on: this.$listeners
+        }}
+        label={this.column.label}>
+        {
+          (() => {
+            switch ($this.column.type) {
+              case 'boolean':
+                return <a-switch v-decorator={$this.getDecorator($this.column)} disabled={$this.column.disabled}/>
+              case 'number':
+                return <a-input-number v-decorator={$this.getDecorator($this.column)} disabled={$this.column.disabled}/>
+              case 'input':
+                return <a-input placeholder={$this.getPlaceholder($this.column)} v-decorator={$this.getDecorator($this.column)} disabled={$this.column.disabled}/>
+              case 'textarea':
+                return <a-textarea placeholder={$this.getPlaceholder($this.column)} v-decorator={$this.getDecorator($this.column)} disabled={$this.column.disabled}/>
+            }
+          })()
+        }
+      </a-form-item>
+    )
   }
 }
-</script>
-
-<style>
-
-</style>

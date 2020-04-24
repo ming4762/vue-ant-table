@@ -1,4 +1,22 @@
 import FormItem from './FormItem'
+import { Row, Col } from 'ant-design-vue'
+
+const LAYOUT = {
+  inline: 'inline'
+}
+
+/**
+ * 默认的form cols
+ * @type {{wrapperCol: {span: number}, labelCol: {span: number}}}
+ */
+const defaultFormCols = {
+  labelCol: {
+    span: 5
+  },
+  wrapperCol: {
+    span: 19
+  }
+}
 
 /**
  * form组件
@@ -6,7 +24,9 @@ import FormItem from './FormItem'
 export default {
   name: 's-form',
   components: {
-    FormItem
+    FormItem,
+    Row,
+    Col
   },
   props: {
     // 表格配置
@@ -31,7 +51,8 @@ export default {
       // 行内表单显示列信息
       showFormInlineColumns: [],
       // 表单显示列信息
-      showFormColumns: []
+      showFormColumns: [],
+      inlineFormColumns: []
     }
   },
   beforeMount () {
@@ -70,8 +91,12 @@ export default {
      */
     convertColumnOption (columnOptions) {
       const showColumns = []
+      // 行内列
+      const inlineColumns = []
       // 隐藏列
       const hiddenFormColumns = []
+      // 序号
+      let index = 0
       this.columns.forEach(item => {
         // 设置key
         if (!item.key) item.key = item.prop
@@ -81,11 +106,27 @@ export default {
         if (item.visible === false) {
           hiddenFormColumns.push(item)
         } else {
-          showColumns.push(item)
+          if (this.layout === LAYOUT.inline) {
+            inlineColumns.push(item)
+          } else {
+            // 非行内表单
+            // 获取span，默认值24
+            const span = item.span ? item.span : 24
+            if (index === 0) {
+              showColumns.push([])
+            }
+            showColumns[showColumns.length - 1].push(item)
+            index = index + span
+            // 重启一行
+            if (index >= 24) {
+              index = 0
+            }
+          }
         }
       })
       this.showFormColumns = showColumns
       this.hiddenFormColumns = hiddenFormColumns
+      this.inlineFormColumns = inlineColumns
     },
     /**
      * 渲染隐藏列
@@ -110,7 +151,10 @@ export default {
      * @param columns
      * @returns {*}
      */
-    renderColumns (columns) {
+    renderInlineColumns (columns) {
+      if (this.layout !== LAYOUT.inline) {
+        return ''
+      }
       const { model } = this
       return columns.map(column => {
         if (this.useSolt(column)) {
@@ -130,6 +174,76 @@ export default {
           )
         }
       })
+    },
+    /**
+     * 渲染普通列
+     * @param columns
+     */
+    renderColumns (columns) {
+      return columns.map((columns, indexRow) => {
+        return (
+          <Row
+            key={indexRow + 'row'}>
+            {
+              columns.map((column, indexCol) => {
+                return (
+                  <Col
+                    key={indexCol + 'col'}
+                    span={column.span}>
+                    {
+                      this.renderFormItem(column)
+                    }
+                  </Col>
+                )
+              })
+            }
+          </Row>
+        )
+      })
+    },
+    /**
+     * 渲染表格项
+     * @param column
+     */
+    renderFormItem (column) {
+      const { model } = this
+      if (this.useSolt(column)) {
+        return (
+          <a-form-item
+            {...{
+              props: this.getFormItemProps(column)
+            }}
+            label={column.label}>
+            {
+              this.$scopedSlots[column.key]({ column, model })
+            }
+          </a-form-item>
+        )
+      } else {
+        return (
+          <FormItem
+            {...{
+              attrs: this.getFormItemProps(column)
+            }}
+            column={column}
+            formModel={model}/>
+        )
+      }
+    },
+    /**
+     * 获取form item pros
+     * @param column
+     */
+    getFormItemProps (column) {
+      const { labelCol, wrapperCol } = defaultFormCols
+      const props = column.item || {}
+      if (!props.labelCol) {
+        props.labelCol = labelCol
+      }
+      if (!props.wrapperCol) {
+        props.wrapperCol = wrapperCol
+      }
+      return props
     },
     /**
      * 设置默认值
@@ -193,7 +307,13 @@ export default {
           this.renderHiddenColumns(this.hiddenFormColumns)
         }
         {
+          this.renderInlineColumns(this.inlineFormColumns)
+        }
+        {
           this.renderColumns(this.showFormColumns)
+        }
+        {
+          this.$slots['form-button'] ? this.$slots['form-button'] : ''
         }
       </a-form>
     )

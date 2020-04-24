@@ -3,10 +3,10 @@
  */
 import { Form } from '../packages/form'
 
-import { TableCRUD, Table } from '../packages/table'
+import { TableCrud, Table } from '../packages/table'
 
 const components = [
-  Form, TableCRUD, Table
+  Form, TableCrud, Table
 ]
 
 const install = function (Vue) {

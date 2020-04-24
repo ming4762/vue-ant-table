@@ -1,0 +1,13 @@
+.button-group-container {
+  padding-bottom: 5px;
+}
+.button-group-left {
+  display: inline-block;
+}
+.button-group-right {
+  display: inline-block;
+  float: right;
+  .right-button {
+    margin-left: 5px;
+  }
+}

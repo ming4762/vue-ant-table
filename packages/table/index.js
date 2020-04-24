@@ -1,15 +1,15 @@
 import Table from './src/Table'
-import TableCRUD from './src/TableCRUD'
+import TableCrud from './src/TableCrud'
 
 Table.install = (Vue) => {
   Vue.component(Table.name, Table)
 }
 
-TableCRUD.install = (Vue) => {
-  Vue.component(TableCRUD.name, TableCRUD)
+TableCrud.install = (Vue) => {
+  Vue.component(TableCrud.name, TableCrud)
 }
 
 export {
   Table,
-  TableCRUD
+  TableCrud
 }
