@@ -1,4 +1,7 @@
 import { CommonUtil } from 'cloud-js-utils'
+import { t } from '../../../src/locale'
+
+import TableColumnConfig from './TableColumnConfig'
 
 import '../../style/table.scss'
 
@@ -39,10 +42,13 @@ const OPERATION_SLOT_NAME = 'operation_ming'
  * @type {{default: string, middle: string}}
  */
 const BUTTON_SIZE = {
-  middle: 'middle',
   default: 'default',
+  middle: 'middle',
   small: 'small'
 }
+
+// 表格尺寸
+const TABLE_SIZE = BUTTON_SIZE
 
 /**
  * 默认的分页配置
@@ -54,6 +60,7 @@ const defaultPagination = {
   defaultCurrent: 1
 }
 
+// Vue.use(Button)
 /**
  * crud 表格
  * @author zhongming
@@ -61,8 +68,7 @@ const defaultPagination = {
 export default {
   name: 's-table-crud',
   components: {
-    // Table,
-    // Form
+    TableColumnConfig
   },
   props: {
     // 是否显示默认搜索
@@ -123,6 +129,11 @@ export default {
       type: Boolean,
       default: true
     },
+    // 左侧按钮是否在按钮组内
+    leftButtonInGroup: {
+      type: Boolean,
+      default: true
+    },
     // 参数格式化函数
     queryParameterFormatter: Function,
     // 查询执行器
@@ -156,12 +167,14 @@ export default {
     // 行按钮是否是text类型
     textRowButton: {
       type: Boolean
-    }
+    },
+    // 搜索按钮是否在右侧
+    rightSearchButton: Boolean
   },
   data () {
     return {
       // 搜索DIV显示状态
-      searchDivVisible: true,
+      searchDivVisible: !this.defaultSearchVisible,
       // 表格加载状态
       tableLoading: false,
       // 搜索符号
@@ -186,15 +199,15 @@ export default {
       },
       // 行添加按钮样式
       rowAddButtonType: this.textRowButton === true ? 'link' : '',
-      rowAddButtonText: this.textRowButton === true ? '新增' : '',
+      rowAddButtonText: this.textRowButton === true ? t('smart.table.addButtonText') : '',
 
       // 行编辑按钮样式
       rowEditButtonType: this.textRowButton === true ? 'link' : 'primary',
-      rowEditButtonText: this.textRowButton === true ? '编辑' : '',
+      rowEditButtonText: this.textRowButton === true ? t('smart.table.editButtonText') : '',
 
       // 行添加按钮样式
       rowDeleteButtonType: this.textRowButton === true ? 'link' : 'danger',
-      rowDeleteButtonText: this.textRowButton === true ? '删除' : '',
+      rowDeleteButtonText: this.textRowButton === true ? t('smart.table.deleteButtonText') : '',
       // 选中的列
       selectedRow: null,
       // 编辑前对象
@@ -210,7 +223,13 @@ export default {
       tableSortData: {
         sortName: null,
         sortOrder: null
-      }
+      },
+      // 过滤信息
+      filters: {},
+      // 设置的表格尺寸
+      setTableSize: null,
+      // 列配置信息
+      columnConfig: {}
     }
   },
   /**
@@ -361,6 +380,8 @@ export default {
       const addEditFormColumns = []
       // 表格插槽
       const tableScopedSlots = []
+      // 列配置信息
+      const columnConfig = {}
       this.columns.forEach(item => {
         // 设置key
         if (!item.key) {
@@ -374,12 +395,14 @@ export default {
           type: item.type
         }
         // 处理表格列
-        const tableCustom = item.table || {}
-        tableColumns.push(Object.assign({
+        const tableCustom = Object.assign({
           key: item.key,
           dataIndex: item.prop,
-          title: item.label
-        }, tableCustom))
+          title: item.label,
+          visible: true,
+          fixed: false
+        }, item.table || {})
+        tableColumns.push(tableCustom)
         // 处理搜索配置
         if (item.search) {
           searchColumns.push(Object.assign({}, commonColumn, item.search))
@@ -395,7 +418,19 @@ export default {
             tableScopedSlots.push(tableCustom[scopedSlotsProperty][customRenderProperty])
           }
         }
+        // 处理列显示隐藏配置
+        const { config, visible, fixed } = tableCustom
+        const { key, label } = item
+        if (config !== false) {
+          columnConfig[item.key] = {
+            key: key,
+            label: label,
+            visible: visible,
+            fixed: fixed
+          }
+        }
       })
+      this.columnConfig = columnConfig
       // 添加搜索列
       if (this.hasOpreaColumn) {
         tableColumns.push({
@@ -429,7 +464,7 @@ export default {
         rowList.push(row)
       } else {
         if (this.selectedRows.length === 0) {
-          this.$message.error('请选择要删除的数据')
+          this.$message.error(t('smart.table.noDeleteUrl'))
         } else {
           rowList = this.selectedRows
         }
@@ -457,7 +492,7 @@ export default {
               deletePromise = $this.deleteHandler($this.deleteUrl, deleteList, rowList)
             } else {
               if (!$this.deleteUrl) {
-                $this.$message.error('未设置删除url：deleteUrl，无法执行删除')
+                $this.$message.error()
                 return false
               }
               deletePromise = $this.apiService.postAjax($this.deleteUrl, deleteList)
@@ -526,7 +561,7 @@ export default {
         this.tableData = dealData
       }).catch(error => {
         this.tableLoading = false
-        this.errorMessage('加载数据失败', error)
+        this.errorMessage(t('smart.table.loadError'), error)
       })
     },
     /**
@@ -534,17 +569,22 @@ export default {
      * TODO: 待完善分页信息
      */
     createQueryParameter () {
-      let parameters = {}
+      const { filters, searchSymbol, searchColumns } = this
+      let parameters = {
+      }
+      if (Object.keys(filters).length > 0) {
+        parameters.filters = filters
+      }
       // 添加searchModel条件
       // 获取查询model
       let searchModel = {}
-      if (this.searchColumns.length > 0) {
+      if (searchColumns.length > 0) {
         searchModel = this.getSearchFormVue().getFormModel()
       }
       if (this.searchWithSymbol) {
         Object.keys(searchModel).forEach(key => {
           const value = searchModel[key]
-          const symbol = this.searchSymbol[key]
+          const symbol = searchSymbol[key]
           let searchKey = key
           if (symbol) {
             searchKey = `${key}@${symbol}`
@@ -739,6 +779,7 @@ export default {
      * 分页、排序、筛选变化时触发
      */
     handleChange (pagination, filters, sorter, { currentDataSource }) {
+      this.filters = filters
       const { order, field } = sorter
       // 设置排序内容
       if (!order) {
@@ -787,6 +828,13 @@ export default {
       this.load()
     },
     /**
+     * 改变表格大小
+     */
+    handleChangeTableSize ({ key }) {
+      this.setTableSize = key
+      // todo：解决表格冻结列bug
+    },
+    /**
      * 获取查询formvue对象
      * @returns {Vue | Element | Vue[] | Element[]}
      */
@@ -809,7 +857,7 @@ export default {
         return ''
       }
       return (
-        <div style={{display: this.searchDivVisible ? 'none' : ''}}>
+        <div class="smart-search-container" style={{display: this.searchDivVisible ? 'none' : ''}}>
           <s-form
             {...{
               scopedSlots: this.createSearchFormScopeSlots(),
@@ -827,46 +875,122 @@ export default {
         </div>
       )
     },
+    handleT(path, options) {
+      return t(path, options)
+    },
+    /**
+     * 列显示隐藏改变
+     * @param columnShowConfig
+     */
+    handleColumnShowChange (columnShowConfig) {
+      this.tableColumns.forEach(column => {
+        const { key, visible } = column
+        const setColumnVisible = columnShowConfig[key]
+        if (setColumnVisible !== undefined && setColumnVisible !== null && visible !== setColumnVisible) {
+          column.visible = setColumnVisible
+        }
+      })
+    },
+    /**
+     * 列冻结信息改变
+     * @param columnFixedConfig
+     */
+    handleColumnFixedChange (columnFixedConfig) {
+      console.log(columnFixedConfig)
+      this.tableColumns.forEach(column => {
+        const { key } = column
+        const fixed = columnFixedConfig[key]
+        if (fixed) {
+          column.fixed = (fixed === 'none' ? false : fixed)
+        }
+      })
+      console.log(this.tableColumns)
+    },
+    renderLeftButton () {
+      const noInGroupClass = this.leftButtonInGroup ? '' : 'not-in-group'
+      return [
+        <a-button icon="plus" class={noInGroupClass} size={this.getButtonSize()} onClick={this.handleShowAdd} type="primary">{t('smart.table.addButtonText')}</a-button>,
+        <a-button icon="delete" class={noInGroupClass} size={this.getButtonSize()} onClick={() => this.handleDelete()} type="danger">{t('smart.table.deleteButtonText')}</a-button>,
+      ].concat(this.$slots['button-left'])
+    },
     /**
      * 渲染按钮组
      */
     renderButtonGroup () {
-      return (
+      return this.hasLeftButton || this.hasRightButton ? (
         <div class="button-group-container">
           {
             this.hasLeftButton ? (
               <div class="button-group-left">
-                <a-button-group>
-                  <a-button size={this.getButtonSize()} onClick={this.handleShowAdd} type="primary">添加</a-button>
-                  <a-button size={this.getButtonSize()} onClick={() => this.handleDelete()} type="danger">删除</a-button>
-                  {
-                    this.$slots['button-group-left']
-                  }
-                </a-button-group>
+                {
+                  this.leftButtonInGroup ? (
+                    <a-button-group>
+                      {
+                        this.renderLeftButton()
+                      }
+                    </a-button-group>
+                  ) : this.renderLeftButton()
+                }
               </div>
             ) : ''
           }
           {
             this.hasRightButton ? (
               <div class="button-group-right">
-                <a-tooltip title="刷新" placement="top">
-                  <a-button size={this.getButtonSize()} onClick={this.handleRefresh} class="right-button" shape="circle" icon="reload"/>
-                </a-tooltip>
+                <div class="item">
+                  <a-tooltip title={this.handleT('smart.table.columnConfig.tooltip')} placement="top">
+                    <TableColumnConfig
+                      onColumnShowChange={this.handleColumnShowChange}
+                      onColumnFixedChange={this.handleColumnFixedChange}
+                      config={this.columnConfig}/>
+                  </a-tooltip>
+                </div>
+                <div class="item">
+                  <a-dropdown trigger={['click']}>
+                    <a-tooltip title={t('smart.table.tableDensity')} placement="top">
+                      <a-icon style="font-size: 16px;" type="column-height" />
+                    </a-tooltip>
+                    <a-menu onClick={this.handleChangeTableSize} slot="overlay">
+                      {
+                        Object.keys(TABLE_SIZE).map(key => {
+                          return (
+                            <a-menu-item key={key}>
+                              {
+                                t(`smart.table.size.${key}`)
+                              }
+                            </a-menu-item>
+                          )
+                        })
+                      }
+                    </a-menu>
+                  </a-dropdown>
+                </div>
+                <div class="item">
+                  <a-tooltip title={t('smart.table.refreshTooltip')} placement="top">
+                    <a-icon onClick={this.handleRefresh} style="font-size: 16px;" type="reload" />
+                    {/*<a-button size={this.getButtonSize()} onClick={this.handleRefresh} class="right-button" shape="circle" icon="reload"/>*/}
+                  </a-tooltip>
+                </div>
+
                 {/* TODO:隐藏待开发 */}
                 {/*<a-tooltip title="列显示" placement="top">*/}
                 {/*  <a-button size={this.getButtonSize()} onClick={() => { this.columnVisibleDialogVisible = true }} class="right-button" shape="circle" icon="appstore"/>*/}
                 {/*</a-tooltip>*/}
-                <a-tooltip title="搜索" placement="top">
-                  <a-button size={this.getButtonSize()} onClick={() => {this.searchDivVisible = !this.searchDivVisible}} class="right-button" shape="circle" icon="search"/>
-                </a-tooltip>
+                <div class="item">
+                  <a-tooltip title={this.handleT('smart.table.searchTooltip')} placement="top">
+                    <a-icon
+                      style="font-size: 16px;"
+                      onClick={() => {
+                        this.searchDivVisible = !this.searchDivVisible
+                      }}
+                      type="search"/>
+                  </a-tooltip>
+                </div>
               </div>
             ): ''
           }
-          {
-            this.$slots['button-left']
-          }
         </div>
-      )
+      ) : ''
     },
     /**
      * 渲染表格
@@ -883,7 +1007,7 @@ export default {
             scopedSlots: this.createTableScopeSlots()
           }}
           loading={this.tableLoading}
-          size={this.size}
+          size={this.setTableSize || this.size}
           pagination={false}
           dataSource={this.tableData}
           columns={this.tableColumns}
@@ -1004,10 +1128,10 @@ export default {
           const vnodes = []
           if (this.computedDefaultButtonShow.add.row === true) {
             vnodes.push(
-              <a-tooltip placement="top" title="添加">
+              <a-tooltip placement="top" title={t('smart.table.addButtonText')}>
                 <a-button
                   type={this.rowAddButtonType}
-                  size={this.getButtonSize()}
+                  size="small"
                   style="width: 50px; margin-right: 5px"
                   onClick={() => { this.handleBeforeAdd(record) }}
                   icon="plus">{this.rowAddButtonText}</a-button>
@@ -1016,10 +1140,10 @@ export default {
           }
           if (this.computedDefaultButtonShow.edit.row === true) {
             vnodes.push(
-              <a-tooltip placement="top" title="编辑">
+              <a-tooltip placement="top" title={t('smart.table.editButtonText')}>
                 <a-button
                   type={this.rowEditButtonType}
-                  size={this.getButtonSize()}
+                  size="small"
                   style="width: 50px; margin-right: 5px"
                   onClick={() => { this.handleBeforeEdit(record) }}
                   icon={this.textRowButton ? '' : 'edit'}>{this.rowEditButtonText}</a-button>
@@ -1028,10 +1152,10 @@ export default {
           }
           if (this.computedDefaultButtonShow.delete.row === true) {
             vnodes.push(
-              <a-tooltip placement="top" title="删除">
+              <a-tooltip placement="top" title={t('smart.table.deleteButtonText')}>
                 <a-button
                   type={this.rowDeleteButtonType}
-                  size={this.getButtonSize()}
+                  size="small"
                   style="width: 50px;"
                   onClick={() => { this.handleDelete(record) }}
                   icon={this.textRowButton ? '' : 'delete'}>{this.rowDeleteButtonText}</a-button>
@@ -1063,18 +1187,51 @@ export default {
      * 创建搜索form slots
      */
     createSearchFormSlots () {
+      return <div style={this.rightSearchButton ? 'float: right' : ''} class="search-button">
+        <a-form-item>
+          <a-button
+            icon="search"
+            size={this.getButtonSize()}
+            onClick={this.handleSearch}
+            type="primary">
+            {t('smart.common.search')}
+          </a-button>
+        </a-form-item>
+        <a-form-item>
+          <a-button
+            icon="undo"
+            size={this.getButtonSize()}
+            onClick={this.handleRestSearch}>
+            {t('smart.common.reset')}
+          </a-button>
+        </a-form-item>
+      </div>
       return [
         (
           <a-form-item>
-            <a-button size={this.getButtonSize()} onClick={this.handleSearch} type="primary">查询</a-button>
+            <a-button
+              icon="search"
+              size={this.getButtonSize()}
+              onClick={this.handleSearch}
+              type="primary">
+              {t('smart.common.search')}
+            </a-button>
           </a-form-item>
         ),
         (
           <a-form-item>
-            <a-button size={this.getButtonSize()} onClick={this.handleRestSearch}>重置</a-button>
+            <a-button
+              icon="undo"
+              size={this.getButtonSize()}
+              onClick={this.handleRestSearch}>
+              {t('smart.common.reset')}
+            </a-button>
           </a-form-item>
         )
       ]
+    },
+    renderTableAlert () {
+      return this.$slots['table-alert']
     },
   },
   /**
@@ -1083,7 +1240,7 @@ export default {
    */
   render (h) {
     return (
-      <div>
+      <div class="vue-ant-table">
         {
           // 渲染搜索div
           this.renderSearch()
@@ -1091,6 +1248,10 @@ export default {
         {
           // 渲染操作组
           this.renderButtonGroup()
+        }
+        {
+          // 渲染表格alert
+          this.renderTableAlert()
         }
         {
           // 渲染表格

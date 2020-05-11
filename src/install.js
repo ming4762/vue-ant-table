@@ -5,11 +5,16 @@ import { Form } from '../packages/form'
 
 import { TableCrud, Table } from '../packages/table'
 
+import { use, i18n } from './locale'
+
 const components = [
   Form, TableCrud, Table
 ]
 
-const install = function (Vue) {
+const install = function (Vue, options = {}) {
+  use(options.locale)
+  i18n(options.i18n)
+
   if (install.installed) return
   install.installed = true
   // 遍历并注册全局组件

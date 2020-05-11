@@ -1,13 +1,41 @@
 .button-group-container {
-  padding-bottom: 5px;
+  padding: 10px 10px 5px;
 }
 .button-group-left {
   display: inline-block;
+  .not-in-group {
+    margin-right: 5px;
+  }
+}
+.smart-search-container {
+  padding: 15px 15px 0 15px;
+  margin: 0 0 5px;
+  .search-button {
+    display: inline-block;
+  }
 }
 .button-group-right {
   display: inline-block;
   float: right;
-  .right-button {
-    margin-left: 5px;
+  line-height: 32px;
+  .item {
+    display: inline-block;
+    margin-right: 8px;
+    .anticon {
+      margin-left: 8px
+    }
   }
 }
+
+.vue-ant-table .ant-table-pagination {
+  margin: 10px 0;
+}
+
+.vue-ant-table::after {
+  display: table;
+  content: '';
+}
+.vue-ant-table::after {
+  clear: both;
+}
+
