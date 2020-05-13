@@ -907,7 +907,7 @@ export default {
       console.log(this.tableColumns)
     },
     renderLeftButton () {
-      const noInGroupClass = this.leftButtonInGroup ? '' : 'not-in-group'
+      const noInGroupClass = this.leftButtonInGroup ? '' : 'smart-button-common-space'
       return [
         <a-button icon="plus" class={noInGroupClass} size={this.getButtonSize()} onClick={this.handleShowAdd} type="primary">{t('smart.table.addButtonText')}</a-button>,
         <a-button icon="delete" class={noInGroupClass} size={this.getButtonSize()} onClick={() => this.handleDelete()} type="danger">{t('smart.table.deleteButtonText')}</a-button>,
@@ -1190,14 +1190,13 @@ export default {
       return <div style={this.rightSearchButton ? 'float: right' : ''} class="search-button">
         <a-form-item>
           <a-button
+            class="smart-button-common-space"
             icon="search"
             size={this.getButtonSize()}
             onClick={this.handleSearch}
             type="primary">
             {t('smart.common.search')}
           </a-button>
-        </a-form-item>
-        <a-form-item>
           <a-button
             icon="undo"
             size={this.getButtonSize()}
