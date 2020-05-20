@@ -33,6 +33,9 @@ export default {
         default: 'default',
         middle: 'middle',
         small: 'small'
+      },
+      summary: {
+        sumText: 'summary'
       }
     }
   }

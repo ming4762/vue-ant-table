@@ -33,6 +33,9 @@ export default {
         default: '默认',
         middle: '中等',
         small: '紧凑'
+      },
+      summary: {
+        sumText: '合计'
       }
     }
   }

@@ -34,7 +34,6 @@ const EVENTS = {
 
 const EDIT = 'edit'
 const ADD = 'add'
-const TABLE_INDEX_SLOT_NAME = 'table-index-index'
 const OPERATION_SLOT_NAME = 'operation_ming'
 
 /**
@@ -75,11 +74,6 @@ export default {
     defaultSearchVisible: Boolean,
     // 搜索是否添加符号
     searchWithSymbol: {
-      type: Boolean,
-      default: true
-    },
-    // 是否显示序号
-    showIndex: {
       type: Boolean,
       default: true
     },
@@ -169,7 +163,16 @@ export default {
       type: Boolean
     },
     // 搜索按钮是否在右侧
-    rightSearchButton: Boolean
+    rightSearchButton: Boolean,
+    /**
+     * 添加修改表单布局
+     */
+    addEditFormlayout: {
+      type: String,
+      default: 'horizontal'
+    },
+    // 添加搜索表单默认的span
+    addEditFormSpan: Number
   },
   data () {
     return {
@@ -364,16 +367,6 @@ export default {
       const customRenderProperty = 'customRender'
       // 表格配置
       const tableColumns = []
-      // 处理序号列
-      if (this.showIndex) {
-        tableColumns.push({
-          key: 'index',
-          width: 70,
-          title: '#',
-          fixed: true,
-          scopedSlots: { customRender: TABLE_INDEX_SLOT_NAME }
-        })
-      }
       // 搜索表单配置
       const searchColumns = []
       // 添加修改form columns
@@ -862,7 +855,6 @@ export default {
             {...{
               scopedSlots: this.createSearchFormScopeSlots(),
             }}
-            size="small"
             layout="inline"
             columns={this.searchColumns}
             ref="searchForm">
@@ -908,10 +900,21 @@ export default {
     },
     renderLeftButton () {
       const noInGroupClass = this.leftButtonInGroup ? '' : 'smart-button-common-space'
-      return [
-        <a-button icon="plus" class={noInGroupClass} size={this.getButtonSize()} onClick={this.handleShowAdd} type="primary">{t('smart.table.addButtonText')}</a-button>,
-        <a-button icon="delete" class={noInGroupClass} size={this.getButtonSize()} onClick={() => this.handleDelete()} type="danger">{t('smart.table.deleteButtonText')}</a-button>,
-      ].concat(this.$slots['button-left'])
+      const vnodes = []
+      const { add } = this.computedDefaultButtonShow
+      if (add.top === true) {
+        vnodes.push(
+          <a-button icon="plus" class={noInGroupClass} size={this.getButtonSize()} onClick={this.handleShowAdd}
+                    type="primary">{t('smart.table.addButtonText')}</a-button>
+        )
+      }
+      if (this.computedDefaultButtonShow.delete.top === true) {
+        vnodes.push(
+          <a-button icon="delete" class={noInGroupClass} size={this.getButtonSize()}
+                    onClick={() => this.handleDelete()} type="danger">{t('smart.table.deleteButtonText')}</a-button>
+        )
+      }
+      return vnodes.concat(this.$slots['button-left'])
     },
     /**
      * 渲染按钮组
@@ -1030,6 +1033,8 @@ export default {
             {...{
               scopedSlots: this.createAddEditScopeSlots()
             }}
+            layout={this.addEditFormlayout}
+            defaultSpan={this.addEditFormSpan}
             ref="addEditForm"
             columns={this.addEditFormColumns}>
           </s-form>
@@ -1115,16 +1120,15 @@ export default {
           return this.$scopedSlots[item]({ text, record, index })
         }
       })
-      if (this.showIndex === true) {
-        scopeSlots[TABLE_INDEX_SLOT_NAME] = (text, record, index) => {
-          return (
-            <span>{index + 1}</span>
-          )
-        }
-      }
       // 添加操作列插槽
       if (this.hasOpreaColumn) {
         scopeSlots[OPERATION_SLOT_NAME] = (text, record, index) => {
+          // 合计列显示NA
+          if (record.isSummary === true) {
+            return [
+              <span>N/A</span>
+            ]
+          }
           const vnodes = []
           if (this.computedDefaultButtonShow.add.row === true) {
             vnodes.push(

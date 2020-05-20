@@ -1,6 +1,6 @@
 {
   "name": "vue-ant-table",
-  "version": "0.2.0",
+  "version": "0.2.3",
   "author": "ming4762",
   "license": "MIT",
   "scripts": {
@@ -12,7 +12,7 @@
   "main": "lib/vue-ant-table.umd.js",
   "dependencies": {
     "ant-design-vue": "^1.5.4",
-    "cloud-js-utils": "0.0.9",
+    "cloud-js-utils": "0.0.10",
     "core-js": "^3.6.4",
     "deepmerge": "^4.2.2",
     "vue": "^2.6.11"

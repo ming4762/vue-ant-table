@@ -2,7 +2,9 @@ import FormItem from './FormItem'
 import { Row, Col } from 'ant-design-vue'
 
 const LAYOUT = {
-  inline: 'inline'
+  inline: 'inline',
+  vertical: 'vertical',
+  horizontal: 'horizontal'
 }
 
 /**
@@ -11,10 +13,10 @@ const LAYOUT = {
  */
 const defaultFormCols = {
   labelCol: {
-    span: 5
+    span: 6
   },
   wrapperCol: {
-    span: 19
+    span: 18
   }
 }
 
@@ -40,8 +42,8 @@ export default {
     layout: {
       type: String,
       default: 'horizontal'
-    }
-
+    },
+    defaultSpan: Number
   },
   data () {
     return {
@@ -89,7 +91,8 @@ export default {
     /**
      * 转换column
      */
-    convertColumnOption (columnOptions) {
+    convertColumnOption () {
+      const { defaultSpan } = this
       const showColumns = []
       // 行内列
       const inlineColumns = []
@@ -109,12 +112,14 @@ export default {
           if (this.layout === LAYOUT.inline) {
             inlineColumns.push(item)
           } else {
+            console.log('=========')
             // 非行内表单
             // 获取span，默认值24
-            const span = item.span ? item.span : 24
-            if (index === 0) {
+            const span = item.span ? item.span : (defaultSpan || 24)
+            if (index === 0 || index + span > 24) {
               showColumns.push([])
             }
+            item.span = span
             showColumns[showColumns.length - 1].push(item)
             index = index + span
             // 重启一行
@@ -235,6 +240,7 @@ export default {
      * @param column
      */
     getFormItemProps (column) {
+      const { span } = column
       const { labelCol, wrapperCol } = defaultFormCols
       const props = column.item || {}
       if (!props.labelCol) {
@@ -242,6 +248,19 @@ export default {
       }
       if (!props.wrapperCol) {
         props.wrapperCol = wrapperCol
+      }
+      if (this.layout === LAYOUT.vertical) {
+        props.labelCol = {
+          span: 0
+        }
+        props.wrapperCol = {
+          span: 22
+        }
+        if (span === 24) {
+          props.wrapperCol = {
+            span: 23
+          }
+        }
       }
       return props
     },
