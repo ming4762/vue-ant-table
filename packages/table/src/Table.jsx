@@ -32,6 +32,10 @@ export default {
      * 是否显示合计行
      */
     showSummary: Boolean,
+    keys: {
+      type: Array,
+      required: true
+    },
     /**
      * 合计文字
      */
@@ -109,7 +113,6 @@ export default {
      */
     defaultSummaryMethods () {
       const { computedColumns: columns, dataSource, sumText, showIndex } = this
-      console.log('======')
       const summaryData = {}
       let summaryTextIndex = 0
       for (const [index, column] of columns.entries()) {
@@ -120,6 +123,7 @@ export default {
         }
         if (index === summaryTextIndex) {
           summaryData[dataIndex] = sumText
+          continue
         }
         const values = dataSource.map(item => item[dataIndex])
         if (summary) {
@@ -140,6 +144,9 @@ export default {
       }
       // 设置该列是summary数据
       summaryData.isSummary = true
+      this.keys.forEach(key => {
+        summaryData[key] = new Date().getTime()
+      })
       return summaryData
     },
     createTableScopeSlots () {

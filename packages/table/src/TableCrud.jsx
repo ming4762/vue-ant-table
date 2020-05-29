@@ -811,6 +811,7 @@ export default {
      * 搜索
      */
     handleSearch () {
+      this.pageData.page = 1
       this.load()
     },
     /**
@@ -888,7 +889,6 @@ export default {
      * @param columnFixedConfig
      */
     handleColumnFixedChange (columnFixedConfig) {
-      console.log(columnFixedConfig)
       this.tableColumns.forEach(column => {
         const { key } = column
         const fixed = columnFixedConfig[key]
@@ -896,7 +896,6 @@ export default {
           column.fixed = (fixed === 'none' ? false : fixed)
         }
       })
-      console.log(this.tableColumns)
     },
     renderLeftButton () {
       const noInGroupClass = this.leftButtonInGroup ? '' : 'smart-button-common-space'
@@ -1012,6 +1011,7 @@ export default {
           loading={this.tableLoading}
           size={this.setTableSize || this.size}
           pagination={false}
+          keys={this.keys}
           dataSource={this.tableData}
           columns={this.tableColumns}
           rowKey={this.computedRowKey}

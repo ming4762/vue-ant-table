@@ -4,7 +4,8 @@ export default {
     column: {
       required: true,
       type: Object
-    }
+    },
+    label: String
   },
   methods: {
     getDecorator (column) {
@@ -21,6 +22,9 @@ export default {
       }
       decorator.push(option)
       return decorator
+    },
+    getLabel () {
+      return this.label ? this.label : this.column.label
     },
     /**
      * 获取提示语
@@ -54,25 +58,28 @@ export default {
     }
   },
   render (h) {
-    const $this = this
+    const { $slots, column, getDecorator, getPlaceholder, getLabel } = this
     return (
       <a-form-item
         {...{
           props: this.$attrs,
           on: this.$listeners
         }}
-        label={this.column.label}>
+        label={getLabel()}>
         {
           (() => {
-            switch ($this.column.type) {
+            if ($slots.default) {
+              return $slots.default
+            }
+            switch (column.type) {
               case 'boolean':
-                return <a-switch v-decorator={$this.getDecorator($this.column)} disabled={$this.column.disabled}/>
+                return <a-switch v-decorator={getDecorator(column)} disabled={column.disabled}/>
               case 'number':
-                return <a-input-number v-decorator={$this.getDecorator($this.column)} disabled={$this.column.disabled}/>
+                return <a-input-number v-decorator={getDecorator(column)} disabled={column.disabled}/>
               case 'input':
-                return <a-input placeholder={$this.getPlaceholder($this.column)} v-decorator={$this.getDecorator($this.column)} disabled={$this.column.disabled}/>
+                return <a-input placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled}/>
               case 'textarea':
-                return <a-textarea placeholder={$this.getPlaceholder($this.column)} v-decorator={$this.getDecorator($this.column)} disabled={$this.column.disabled}/>
+                return <a-textarea placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled}/>
             }
           })()
         }

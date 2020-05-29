@@ -1,14 +1,14 @@
 /**
  * form组件
  */
-import { Form } from '../packages/form'
+import { Form, FormItem } from '../packages/form'
 
 import { TableCrud, Table } from '../packages/table'
 
 import { use, i18n } from './locale'
 
 const components = [
-  Form, TableCrud, Table
+  Form, TableCrud, Table, FormItem
 ]
 
 const install = function (Vue, options = {}) {

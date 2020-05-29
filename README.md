@@ -48,7 +48,7 @@ button-left|顶部左侧插槽|
 form-{key}| 添加搜索表格插槽 | {column: 列信息， model：form数据绑定}
 search-{key} | 搜索form插槽| {column: 列信息， model：form数据绑定}
 
-## 三、事件
+## 三、EVENT
 
 name | 说明 | 参数
 ---|---|---

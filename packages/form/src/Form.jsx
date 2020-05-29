@@ -8,6 +8,15 @@ const LAYOUT = {
 }
 
 /**
+ * form item tags
+ * @type {string[]}
+ */
+const FORM_ITEM_TAGS = [
+  'a-form-item',
+  's-form-item'
+]
+
+/**
  * 默认的form cols
  * @type {{wrapperCol: {span: number}, labelCol: {span: number}}}
  */
@@ -112,7 +121,6 @@ export default {
           if (this.layout === LAYOUT.inline) {
             inlineColumns.push(item)
           } else {
-            console.log('=========')
             // 非行内表单
             // 获取span，默认值24
             const span = item.span ? item.span : (defaultSpan || 24)
@@ -163,14 +171,7 @@ export default {
       const { model } = this
       return columns.map(column => {
         if (this.useSolt(column)) {
-          return (
-            <a-form-item
-              label={column.label}>
-              {
-                this.$scopedSlots[column.key]({ column, model })
-              }
-            </a-form-item>
-          )
+          return this.renderSlotFormItem(column, model)
         } else {
           return (
             <FormItem
@@ -203,6 +204,45 @@ export default {
               })
             }
           </Row>
+        )
+      })
+    },
+    /**
+     * 渲染使用插槽的form项
+     * TODO: 插槽无法使用a-form-item 会导致死循环
+     * 1、判断插槽是否是 form-item
+     * 2、form-item获取attrs赋值到a-form-item，插槽的child放入到里面
+     * 3、不是form-item 直接手动创建form-item
+     * @param column
+     * @param model
+     */
+    renderSlotFormItem (column, model) {
+      // 1、获取插槽
+      const vnodeList = this.$scopedSlots[column.key]({ column })
+      return vnodeList.map(vnode => {
+        // 判断是否是 form-item
+        const tag = vnode.componentOptions ? vnode.componentOptions.tag : vnode.tag
+        const isFormItem = FORM_ITEM_TAGS.includes(tag)
+        let itemProps = {
+          column: column
+        }
+        if (isFormItem) {
+          itemProps = {
+            ...itemProps,
+            ...vnode.data.attrs,
+            ...vnode.componentOptions.propsData
+          }
+        }
+        const childVnode = isFormItem ? vnode.componentOptions.children : vnode
+        return (
+          <FormItem
+            {...{
+              attrs: itemProps
+            }}>
+            {
+              childVnode
+            }
+          </FormItem>
         )
       })
     },
