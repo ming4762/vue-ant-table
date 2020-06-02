@@ -32,6 +32,14 @@ const EVENTS = {
   TABLE_CHANGE: 'change'
 }
 
+/**
+ * 插槽前缀
+ * @type {{table: string}}
+ */
+const SLOTS_PREFIX = {
+  table: 'table-'
+}
+
 const EDIT = 'edit'
 const ADD = 'add'
 const OPERATION_SLOT_NAME = 'operation_ming'
@@ -1114,14 +1122,21 @@ export default {
      * 创建表格插槽
      */
     createTableScopeSlots () {
+      const { tableScopedSlots, hasOpreaColumn, $scopedSlots } = this
       const scopeSlots = {}
-      this.tableScopedSlots.forEach(item => {
+      tableScopedSlots.forEach(item => {
         scopeSlots[item] = (text, record, index) => {
-          return this.$scopedSlots[item]({ text, record, index })
+          return $scopedSlots[item]({ text, record, index })
+        }
+      })
+      // 添加表格自身插槽
+      Object.keys($scopedSlots).forEach(key => {
+        if (key.startsWith(SLOTS_PREFIX.table) && !scopeSlots[key]) {
+          scopeSlots[key.substring(SLOTS_PREFIX.table.length)] = $scopedSlots[key]
         }
       })
       // 添加操作列插槽
-      if (this.hasOpreaColumn) {
+      if (hasOpreaColumn) {
         scopeSlots[OPERATION_SLOT_NAME] = (text, record, index) => {
           // 合计列显示NA
           if (record.isSummary === true) {
