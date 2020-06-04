@@ -2,6 +2,19 @@ import { t } from '../../../src/locale'
 
 const TABLE_INDEX_SLOT_NAME = 'table-index-index'
 
+/**
+ * 默认的序号列配置
+ * @type {{scopedSlots: {customRender: string}, width: number, fixed: boolean, title: string, align: string, key: string}}
+ */
+const DEFAULT_INDEX_CONFIG = {
+  key: 'index',
+  width: 70,
+  title: '#',
+  fixed: true,
+  align: 'center',
+  scopedSlots: { customRender: TABLE_INDEX_SLOT_NAME }
+}
+
 export default {
   name: 's-table',
   props: {
@@ -17,11 +30,6 @@ export default {
     size: {
       type: String,
       default: 'default'
-    },
-    // 是否显示序号
-    showIndex: {
-      type: Boolean,
-      default: true
     },
     // 表格项
     columns: {
@@ -51,25 +59,35 @@ export default {
     dataSource: {
       type: Array,
       default: () => []
-    }
+    },
+    // 表格序号控制
+    tableIndex: [Object, Boolean]
   },
   computed: {
+    /**
+     * 是否显示序号列
+     * @returns {boolean}
+     */
+    computedShowIndex () {
+      return this.tableIndex !== false
+    },
+    /**
+     * 序号列计算属性
+     */
+    computedTableIndex () {
+      const { tableIndex } = this
+      if (tableIndex === false) {
+        return []
+      }
+      const column = tableIndex === true || !tableIndex ? {} : tableIndex
+      return Object.assign({}, DEFAULT_INDEX_CONFIG, column)
+    },
     /**
      * 表格项计算属性
      */
     computedColumns () {
-      const columns = []
       // 处理序号列
-      if (this.showIndex) {
-        columns.push({
-          key: 'index',
-          width: 70,
-          title: '#',
-          fixed: true,
-          align: 'center',
-          scopedSlots: { customRender: TABLE_INDEX_SLOT_NAME }
-        })
-      }
+      const columns = [].concat(this.computedTableIndex)
       this.columns.forEach(item => {
         const column = Object.assign({}, item)
         // 显示的列才加入
@@ -112,12 +130,12 @@ export default {
      * @returns {{}}
      */
     defaultSummaryMethods () {
-      const { computedColumns: columns, dataSource, sumText, showIndex } = this
+      const { computedColumns: columns, dataSource, sumText, computedShowIndex } = this
       const summaryData = {}
       let summaryTextIndex = 0
       for (const [index, column] of columns.entries()) {
         const { dataIndex, summary } = column
-        if (showIndex === true && index === 0) {
+        if (computedShowIndex === true && index === 0) {
           summaryTextIndex = 1
           continue
         }
@@ -151,7 +169,7 @@ export default {
     },
     createTableScopeSlots () {
       const scopeSlots = this.$scopedSlots
-      if (this.showIndex === true) {
+      if (this.computedShowIndex === true) {
         scopeSlots[TABLE_INDEX_SLOT_NAME] = (text, record, index) => {
           return (
             <span>{index + 1}</span>
