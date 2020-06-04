@@ -180,7 +180,9 @@ export default {
       default: 'horizontal'
     },
     // 添加搜索表单默认的span
-    addEditFormSpan: Number
+    addEditFormSpan: Number,
+    // 添加保存modal配置
+    addEditModalProps: Function
   },
   data () {
     return {
@@ -1026,15 +1028,30 @@ export default {
     },
     /**
      * 渲染添加修改弹窗
-     * TODO: 待完善 title
      */
     renderAddEditModal () {
+      const { addEditModalProps, addEditDialog: { isAdd }, tableName } = this
+      // 获取自定义的props
+      const props = addEditModalProps ? addEditModalProps.call(this, { isAdd, tableName }) : {}
+      const modalProps = {
+        props: {
+          width: 700,
+          title: '保存/修改',
+          ...props
+        },
+        on: {
+          cancel: () => {
+            this.addEditDialog.visible = false
+          }
+        }
+      }
+
       return (
         <a-modal
-          width={ 700 }
-          onCancel={() => {this.addEditDialog.visible = false}}
-          visible={this.addEditDialog.visible}
-          title="保存/修改">
+          {
+            ...modalProps
+          }
+          visible={this.addEditDialog.visible}>
           <s-form
             {...{
               scopedSlots: this.createAddEditScopeSlots()
