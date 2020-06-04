@@ -981,8 +981,6 @@ export default {
                     {/*<a-button size={this.getButtonSize()} onClick={this.handleRefresh} class="right-button" shape="circle" icon="reload"/>*/}
                   </a-tooltip>
                 </div>
-
-                {/* TODO:隐藏待开发 */}
                 {/*<a-tooltip title="列显示" placement="top">*/}
                 {/*  <a-button size={this.getButtonSize()} onClick={() => { this.columnVisibleDialogVisible = true }} class="right-button" shape="circle" icon="appstore"/>*/}
                 {/*</a-tooltip>*/}
@@ -1067,6 +1065,7 @@ export default {
           onChange={this.handlePaginationChange}
           showSizeChanger={this.computedPagination.showSizeChanger}
           defaultPageSize={this.pageData.pageSize}
+          current={this.pageData.page}
           onShowSizeChange={this.handleShowSizeChange}
           total={this.pageData.total}
         />

@@ -40,10 +40,10 @@ summaryMethod | 自定义的合计算法，参数(当前表格数据、表格列
 addEditFormlayout| 添加修改表单布局 | String | inline，vertical，horizontal | horizontal
 
 ## 二、Scoped Slot
+> 支持antd table组件原生插槽，使用 table-插槽名 
 name | 说明 | 参数
 ---|---|---
 row-operation|行操作列插槽|text：当前行内容，record：当前行数据内容，index：当前行序号
-button-group-left|顶部左侧按钮组插槽|
 button-left|顶部左侧插槽|
 form-{key}| 添加搜索表格插槽 | {column: 列信息， model：form数据绑定}
 search-{key} | 搜索form插槽| {column: 列信息， model：form数据绑定}
