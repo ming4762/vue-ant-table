@@ -467,7 +467,7 @@ export default {
         rowList.push(row)
       } else {
         if (this.selectedRows.length === 0) {
-          this.$message.error(t('smart.table.noDeleteUrl'))
+          this.$message.error(t('smart.table.deleteAlert'))
         } else {
           rowList = this.selectedRows
         }
@@ -495,13 +495,14 @@ export default {
               deletePromise = $this.deleteHandler($this.deleteUrl, deleteList, rowList)
             } else {
               if (!$this.deleteUrl) {
-                $this.$message.error()
+                this.$message.error(t('smart.table.noDeleteUrl'))
                 return false
               }
               deletePromise = $this.apiService.postAjax($this.deleteUrl, deleteList)
             }
             return deletePromise.then(data => {
               $this.$emit(EVENTS.AFTER_DELETE, data)
+              $this.selectedRows = []
               $this.load()
             }).catch(error => {
               $this.errorMessage('删除发生错误', error)
@@ -950,11 +951,13 @@ export default {
             this.hasRightButton ? (
               <div class="button-group-right">
                 <div class="item">
-                  <a-tooltip title={this.handleT('smart.table.columnConfig.tooltip')} placement="top">
-                    <TableColumnConfig
-                      onColumnShowChange={this.handleColumnShowChange}
-                      onColumnFixedChange={this.handleColumnFixedChange}
-                      config={this.columnConfig}/>
+                  <a-tooltip title={t('smart.table.columnConfig.tooltip')} placement="top">
+                    <div>
+                      <TableColumnConfig
+                        onColumnShowChange={this.handleColumnShowChange}
+                        onColumnFixedChange={this.handleColumnFixedChange}
+                        config={this.columnConfig}/>
+                    </div>
                   </a-tooltip>
                 </div>
                 <div class="item">
