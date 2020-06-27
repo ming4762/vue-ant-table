@@ -39,6 +39,8 @@ sumText | 合计行第一列文字 | String | 合计
 summaryMethod | 自定义的合计算法，参数(当前表格数据、表格列信息) | Function
 addEditFormlayout| 添加修改表单布局 | String | inline，vertical，horizontal | horizontal
 addEditModalProps| 添加修改弹窗自定义函数,参数{ isAdd, tableName }，返回值{props: ModalProps, on: {}} |Function
+resizable | 是否启用可伸缩列 | Boolean | | false
+searchFormProps | 搜索form 自定义props | Object
 
 ## 二、Scoped Slot
 > 支持antd table组件原生插槽，使用 table-插槽名 
