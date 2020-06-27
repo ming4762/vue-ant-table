@@ -182,7 +182,12 @@ export default {
     // 添加搜索表单默认的span
     addEditFormSpan: Number,
     // 添加保存modal配置
-    addEditModalProps: Function
+    addEditModalProps: Function,
+    // 搜索form配置
+    searchFormProps: {
+      type: Object,
+      default: () => { return {} }
+    }
   },
   data () {
     return {
@@ -857,17 +862,24 @@ export default {
      * 渲染搜索div
      */
     renderSearch () {
+      const { searchFormProps } = this
       // 搜索列长度为0 不渲染
       if (this.searchColumns.length === 0) {
         return ''
+      }
+      // 创建from props
+      if (searchFormProps.hasOwnProperty('defaultSpan')) {
+        searchFormProps.layout = null
+      } else {
+        searchFormProps.layout = 'inline'
       }
       return (
         <div class="smart-search-container" style={{display: this.searchDivVisible ? 'none' : ''}}>
           <s-form
             {...{
               scopedSlots: this.createSearchFormScopeSlots(),
+              props: searchFormProps
             }}
-            layout="inline"
             columns={this.searchColumns}
             ref="searchForm">
             <template slot="form-button">

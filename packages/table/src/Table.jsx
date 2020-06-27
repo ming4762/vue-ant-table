@@ -1,5 +1,6 @@
 import { t } from '../../../src/locale'
 
+import ResizableCell from './ResizableCell'
 const TABLE_INDEX_SLOT_NAME = 'table-index-index'
 
 /**
@@ -61,7 +62,15 @@ export default {
       default: () => []
     },
     // 表格序号控制
-    tableIndex: [Object, Boolean]
+    tableIndex: [Object, Boolean],
+    // 是否支持伸缩列
+    resizable: Boolean
+  },
+  data () {
+    return {
+      // 列宽度
+      columnsWidth: {}
+    }
   },
   computed: {
     /**
@@ -86,10 +95,16 @@ export default {
      * 表格项计算属性
      */
     computedColumns () {
+      const { columnsWidth } = this
       // 处理序号列
       const columns = [].concat(this.computedTableIndex)
       this.columns.forEach(item => {
         const column = Object.assign({}, item)
+        // 设置宽度
+        const resizeWidth = columnsWidth[item.key]
+        if (resizeWidth) {
+          column.width = resizeWidth
+        }
         // 显示的列才加入
         if (column.visible !== false) {
           if (!column.align) column.align = 'center'
@@ -177,13 +192,31 @@ export default {
         }
       }
       return scopeSlots
+    },
+    /**
+     * 创建表格的props
+     * @returns {*}
+     */
+    createTableProps () {
+      const props = Object.assign({}, this.$attrs)
+      if (this.resizable === true) {
+        props.components = {
+          header: {
+            cell: ResizableCell.render(this.render, this.columns, this.test)
+          }
+        }
+      }
+      return props
+    },
+    test (key, width) {
+      this.$set(this.columnsWidth, key, width)
     }
   },
   render (h) {
     return (
       <a-table
         {...{
-          props: this.$attrs,
+          props: this.createTableProps(),
           on: this.$listeners,
           scopedSlots: this.createTableScopeSlots()
         }}

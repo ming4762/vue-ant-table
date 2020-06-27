@@ -13,6 +13,9 @@
   .search-button {
     display: inline-block;
   }
+  .ant-form-item {
+    margin-bottom: 0;
+  }
 }
 .button-group-right {
   display: inline-block;
@@ -37,5 +40,19 @@
 }
 .vue-ant-table::after {
   clear: both;
+}
+
+.resize-table-th {
+  position: relative;
+  .table-draggable-handle {
+    position: absolute;
+    transform: translate(0, 0) !important;
+    height: 100% !important;
+    bottom: 0;
+    left: auto !important;
+    right: -5px;
+    cursor: col-resize;
+    touch-action: none;
+  }
 }
 

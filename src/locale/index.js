@@ -1,8 +1,10 @@
 import defaultLang from './lang/zh_CN'
+import enUS from './lang/en_US'
+import koKR from './lang/ko_KR'
 import Vue from 'vue'
 import deepmerge from 'deepmerge'
 
-let lang = defaultLang
+let lang = defaultLang || enUS || koKR
 let merged = false
 
 let i18nHandler = (path, options) => {
