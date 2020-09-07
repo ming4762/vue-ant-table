@@ -1,5 +1,7 @@
-import Vue from 'vue'
+import vue from 'vue'
 import VueDraggableResizable from 'vue-draggable-resizable'
+
+const Vue = vue || window.Vue
 
 /**
  * 可伸缩列组件
