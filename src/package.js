@@ -1,5 +1,7 @@
 import installComponent from './install'
 
-import Vue from 'vue'
+import vue from 'vue'
+
+const Vue = vue || window.Vue
 
 Vue.use(installComponent)

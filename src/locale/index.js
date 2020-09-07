@@ -1,11 +1,13 @@
 import defaultLang from './lang/zh_CN'
 import enUS from './lang/en_US'
 import koKR from './lang/ko_KR'
-import Vue from 'vue'
+import vue from 'vue'
 import deepmerge from 'deepmerge'
 
 let lang = defaultLang || enUS || koKR
 let merged = false
+
+const Vue = vue || window.Vue
 
 let i18nHandler = (path, options) => {
   const vuei18n = Object.getPrototypeOf(this || Vue).$t
