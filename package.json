@@ -7,7 +7,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "lib": "vue-cli-service build --target lib --name vue-ant-table --dest lib src/install.js"
+    "lib": "vue-cli-service build --target lib --name vue-ant-table --dest lib src/install.js",
+    "lib:use": "vue-cli-service build --target lib --name vue-ant-table --dest lib src/package.js"
   },
   "main": "lib/vue-ant-table.umd.js",
   "dependencies": {

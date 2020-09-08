@@ -273,11 +273,11 @@ export default {
      */
     computedSearchSolts: function () {
       const result = {}
-      for (const key in this.$scopedSlots) {
+      Object.keys(this.$scopedSlots).forEach(key => {
         if (key.indexOf('search-') === 0) {
           result[key] = key.substring(7)
         }
-      }
+      })
       return result
     },
     /**
@@ -285,11 +285,11 @@ export default {
      * @returns {string}
      */
     computedPaginationClass: function () {
-      let patinationClass = 'ant-table-pagination'
+      let paginationClass = 'ant-table-pagination'
       if (this.size === BUTTON_SIZE.small) {
-        patinationClass += ' mini'
+        paginationClass += ' mini'
       }
-      return patinationClass
+      return paginationClass
     },
     /**
      * 选中列计算属性
@@ -310,11 +310,11 @@ export default {
      */
     computedAddEditFormSolts () {
       const result = {}
-      for (const key in this.$scopedSlots) {
+      Object.keys(this.$scopedSlots).forEach(key => {
         if (key.indexOf('form-') === 0) {
           result[key] = key.substring(5)
         }
-      }
+      })
       return result
     },
     /**
@@ -575,7 +575,6 @@ export default {
     },
     /**
      * 创建查询条件
-     * TODO: 待完善分页信息
      */
     createQueryParameter () {
       const { filters, searchSymbol, searchColumns } = this
