@@ -41,6 +41,7 @@ addEditFormlayout| 添加修改表单布局 | String | inline，vertical，horiz
 addEditModalProps| 添加修改弹窗自定义函数,参数{ isAdd, tableName }，返回值{props: ModalProps, on: {}} |Function
 resizable | 是否启用可伸缩列 | Boolean | | false
 searchFormProps | 搜索form 自定义props | Object
+addEditFormSpan | 添加搜索表单默认的span | number
 
 ## 二、Scoped Slot
 > 支持antd table组件原生插槽，使用 table-插槽名 
@@ -97,6 +98,7 @@ search | 搜索form配置，参考SearchForm | Object
 ---|---|---|---|---
 visible | 是否显示该列 | Boolean
 summary | 自定义合计内容，参数（列内容数组、列信息、表格数据） | Function
+config | 是否支持列显示隐藏配置 | boolean | | true
 
 ### form
 > form配置

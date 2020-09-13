@@ -80,6 +80,13 @@ export default {
                 return <a-input placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled}/>
               case 'textarea':
                 return <a-textarea placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled}/>
+              case 'time-picker':
+                return <a-time-picker placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled}/>
+              case 'month-picker':
+                return <a-month-picker placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled}/>
+            }
+            if (column.type === 'date-picker' || column.type === 'datetime-picker') {
+              return <a-date-picker placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled} show-time={column.type === 'datetime-picker'}/>
             }
           })()
         }

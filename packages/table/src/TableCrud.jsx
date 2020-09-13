@@ -602,13 +602,16 @@ export default {
       } else {
         parameters = Object.assign(parameters, searchModel)
       }
+      parameters = {
+        ...parameters,
+        ...this.getSort()
+      }
       // 添加分页信息
       if (this.isPaging()) {
         // 添加分页参数
         const { page, pageSize } = this.pageData
         parameters = {
           ...parameters,
-          ...this.getSort(),
           limit: pageSize,
           offset: (page - 1) * pageSize
         }
