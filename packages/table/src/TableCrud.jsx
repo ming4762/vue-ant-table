@@ -335,7 +335,7 @@ export default {
           top: true
         }
       }
-      const defaultButton = this.defaultButtonConfig
+      const defaultButton = this.defaultButtonConfig || {}
       for (const key in result) {
         const showConfig = this.isButtonShow(defaultButton[key], result[key].top, result[key].row)
         result[key].top = showConfig[0]

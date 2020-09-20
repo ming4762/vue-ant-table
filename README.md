@@ -71,8 +71,8 @@ change | 表格change事件，参考ant使用说明
 
 name | 说明 | 默认值
 ---|---|---
-row | 行按钮是否显示 | add: fasle，其他true
-top | 顶部按钮是否显示| true
+rowShow | 行按钮是否显示 | add: fasle，其他true
+topShow | 顶部按钮是否显示| true
 permission| 按钮所需权限| 
 
 ## 五、column
