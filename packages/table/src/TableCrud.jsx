@@ -704,11 +704,11 @@ export default {
       this.handleAddEditDialogShow(ADD, row)
     },
     /**
-     * 添加编辑弹窗显示
+     * 添加修改弹窗form创建完毕事件
+     * @param formVue
      */
-    handleAddEditDialogShow (ident, row) {
-      // 显示弹窗
-      this.addEditDialog.visible = true
+    handleAddEditFormCreate (formVue) {
+      const { row, ident } = this.addEditProperties
       // 回调函数
       const callBack = model => {
         this.oldAddEditModel = Object.assign({}, row)
@@ -720,14 +720,21 @@ export default {
         }
       }
       // 重置表单
-      if (this.getAddEditFormVue()) {
-        this.getAddEditFormVue().reset()
-      }
+      formVue.reset()
       if (!this.$listeners[EVENTS.ADD_EDIT_DIALOG_SHOW]) {
         callBack(null)
       } else {
-        this.$emit(EVENTS.ADD_EDIT_DIALOG_SHOW, ident, this.getAddEditFormVue().getFieldsValue(), callBack, row)
+        this.$emit(EVENTS.ADD_EDIT_DIALOG_SHOW, ident, formVue.getFormModel(), callBack, row)
       }
+      this.addEditProperties = {}
+    },
+    /**
+     * 添加编辑弹窗显示
+     */
+    handleAddEditDialogShow (ident, row) {
+      // 显示弹窗
+      this.addEditDialog.visible = true
+      this.addEditProperties = { row, ident }
     },
     /**
      * 查询单一对象
@@ -1073,6 +1080,7 @@ export default {
             {...{
               scopedSlots: this.createAddEditScopeSlots()
             }}
+            onCreated={this.handleAddEditFormCreate}
             layout={this.addEditFormlayout}
             defaultSpan={this.addEditFormSpan}
             ref="addEditForm"
@@ -1214,7 +1222,7 @@ export default {
               </a-tooltip>
             )
           }
-          if (this.$slots['row-operation']) {
+          if (this.$scopedSlots['row-operation']) {
             vnodes.push(this.$scopedSlots['row-operation']({ text, record, index }))
           }
           return vnodes

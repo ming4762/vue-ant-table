@@ -27,7 +27,7 @@ deleteWarningHandler | 删除警告语回调函数，参数：删除的列数据
 deleteHandler | 删除执行器，参数(删除URL，删除的key列表，删除的数据列表)，返回promise|Function
 saveUpdateFormatter|添加/修改格式化工具，参数(addEditModel，add/edit)|Function
 saveUpdateHandler|添加修改执行器，参数（saveUpdateUrl,model,add/edit）| Function
-showIndex|是否显示序号列|Boolean | | true
+tableIndex|是否显示序号列|Boolean/object | | false
 rowSelection| 选中列配置，参考ant配置，不支持onChange，需要onChange请手动监听| Object
 defaultButtonConfig | 默认按钮配置，详见defaultButtonConfig| Object
 permissions | 用户权限列表| Array
@@ -45,6 +45,7 @@ addEditFormSpan | 添加搜索表单默认的span | number
 
 ## 二、Scoped Slot
 > 支持antd table组件原生插槽，使用 table-插槽名 
+
 name | 说明 | 参数
 ---|---|---
 row-operation|行操作列插槽|text：当前行内容，record：当前行数据内容，index：当前行序号
