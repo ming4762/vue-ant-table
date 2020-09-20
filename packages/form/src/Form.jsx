@@ -68,6 +68,7 @@ export default {
   },
   beforeMount () {
     this.setDefaultValue()
+    this.$emit('beforeMount', this)
   },
   beforeUpdate () {
     this.setDefaultValue()
@@ -351,7 +352,6 @@ export default {
   created () {
     // 转换列信息
     this.convertColumnOption(this.columnOptions)
-    this.$emit('created', this)
   },
   render (h) {
     return (

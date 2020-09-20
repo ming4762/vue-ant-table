@@ -709,14 +709,18 @@ export default {
      */
     handleAddEditFormCreate (formVue) {
       const { row, ident } = this.addEditProperties
+      this.addEditDialogShowMethods(row, ident, formVue)
+      this.addEditProperties = {}
+    },
+    addEditDialogShowMethods (ident, row, formVue) {
+      const $this = this
       // 回调函数
       const callBack = model => {
         this.oldAddEditModel = Object.assign({}, row)
-
         if (model) {
-          this.getAddEditFormVue().setFieldsValue(model)
+          formVue.form.setFieldsValue(model)
         } else {
-          this.getOne(ident, row)
+          $this.getOne(ident, row)
         }
       }
       // 重置表单
@@ -726,7 +730,6 @@ export default {
       } else {
         this.$emit(EVENTS.ADD_EDIT_DIALOG_SHOW, ident, formVue.getFormModel(), callBack, row)
       }
-      this.addEditProperties = {}
     },
     /**
      * 添加编辑弹窗显示
@@ -734,7 +737,11 @@ export default {
     handleAddEditDialogShow (ident, row) {
       // 显示弹窗
       this.addEditDialog.visible = true
-      this.addEditProperties = { row, ident }
+      if (!this.getAddEditFormVue()) {
+        this.addEditProperties = { row, ident }
+      } else {
+        this.addEditDialogShowMethods(ident, row, this.getAddEditFormVue())
+      }
     },
     /**
      * 查询单一对象
@@ -1080,7 +1087,7 @@ export default {
             {...{
               scopedSlots: this.createAddEditScopeSlots()
             }}
-            onCreated={this.handleAddEditFormCreate}
+            onBeforeMount={this.handleAddEditFormCreate}
             layout={this.addEditFormlayout}
             defaultSpan={this.addEditFormSpan}
             ref="addEditForm"
