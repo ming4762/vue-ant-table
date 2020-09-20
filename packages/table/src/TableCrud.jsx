@@ -336,14 +336,10 @@ export default {
         }
       }
       const defaultButton = this.defaultButtonConfig
-      if (defaultButton) {
-        for (const key in result) {
-          if (defaultButton[key]) {
-            const showConfig = this.isButtonShow(defaultButton[key], result[key].top, result[key].row)
-            result[key].top = showConfig[0]
-            result[key].row = showConfig[1]
-          }
-        }
+      for (const key in result) {
+        const showConfig = this.isButtonShow(defaultButton[key], result[key].top, result[key].row)
+        result[key].top = showConfig[0]
+        result[key].row = showConfig[1]
       }
       return result
     },
@@ -709,7 +705,7 @@ export default {
      */
     handleAddEditFormCreate (formVue) {
       const { row, ident } = this.addEditProperties
-      this.addEditDialogShowMethods(row, ident, formVue)
+      this.addEditDialogShowMethods(ident, row, formVue)
       this.addEditProperties = {}
     },
     addEditDialogShowMethods (ident, row, formVue) {
@@ -831,13 +827,20 @@ export default {
      * @returns {boolean[]}
      */
     isButtonShow (buttonConfig, topShow, rowShow) {
-      if (buttonConfig.rowShow === false || !validatePermission(buttonConfig.permission, this.permissions)) {
-        rowShow = false
+      // 行按钮处理
+      let rowDefault = rowShow
+      if (buttonConfig !== undefined && buttonConfig.rowShow !== undefined) {
+        rowDefault = buttonConfig.rowShow
       }
-      if (buttonConfig.topShow === false || !validatePermission(buttonConfig.permission, this.permissions)) {
-        topShow = false
+      const row = [rowDefault, validatePermission(buttonConfig === undefined ? null : buttonConfig.permission, this.permissions)]
+      // 顶部按钮处理
+      let topDefault = topShow
+      if (buttonConfig !== undefined && buttonConfig.topShow !== undefined) {
+        topDefault = buttonConfig.topShow
       }
-      return [topShow, rowShow]
+      const top = [rowDefault, validatePermission(buttonConfig === undefined ? null : buttonConfig.permission, this.permissions)]
+
+      return [top[0] && top[1], row[0] && row[1]]
     },
     /**
      * 搜索
@@ -1201,7 +1204,7 @@ export default {
                   size="small"
                   style="width: 50px; margin-right: 5px"
                   onClick={() => { this.handleBeforeAdd(record) }}
-                  icon="plus">{this.rowAddButtonText}</a-button>
+                  icon={this.textRowButton ? '' : 'plus'}>{this.rowAddButtonText}</a-button>
               </a-tooltip>
             )
           }
