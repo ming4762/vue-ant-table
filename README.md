@@ -4,6 +4,7 @@
 
 参数 | 说明 | 类型 | 可选值 | 默认值
 ---|---|---|---|---
+url | url参数，推荐使用该prop， save/update/query/delete/get | Object 
 queryUrl|查询URL|String||
 saveUpdateUrl|添加/修改URL|String||
 deleteUrl|删除URL|String||
@@ -21,6 +22,7 @@ leftButtonInGroup|左侧按钮是否在按钮组内|Boolean ||true
 defaultSearchVisible|搜索栏是否默认显示|Boolean||false
 searchWithSymbol|搜索是否添加符号|Boolean||true
 queryParameterFormatter|参数格式化函数，参数：参数|Function|
+tableDataFormatter | 表格数据格式化函数，参数：tableData | Function
 queryHandler|查询执行器，自定义查询，参数（查询url, 参数）|Function
 errorHandler|错误执行，参数（错误信息, 错误对象Error）|Function
 deleteWarningHandler | 删除警告语回调函数，参数：删除的列数据 |Function
@@ -110,6 +112,7 @@ visible | 是否显示 | Boolean
 rules | 表格校验规则，设置true是否默认校验规则 | Boolean | Object
 span | 栅格分布列占据的宽度 ，参考Grid组件| Number |  |  24
 defaultValue | 默认值 | any
+
 
 ### search
 > 搜索form配置

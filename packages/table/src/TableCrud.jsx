@@ -93,6 +93,11 @@ export default {
     deleteUrl: String,
     // 查询URL
     getUrl: String,
+    // 请求地址
+    url: {
+      type: Object,
+      default: () => ({})
+    },
     // 表格对应实体类的key
     keys: {
       type: Array,
@@ -370,6 +375,21 @@ export default {
     }
   },
   methods: {
+    getQueryUrl () {
+      return this.url.query || this.queryUrl
+    },
+    getDeleteUrl () {
+      return this.url.delete || this.deleteUrl
+    },
+    getSaveUrl () {
+      return this.url.save || this.saveUpdateUrl
+    },
+    getUpdateUrl () {
+      return this.url.update || this.saveUpdateUrl
+    },
+    getOneUrl () {
+      return this.url.get
+    },
     /**
      * 转换配置信息
      */
@@ -492,14 +512,15 @@ export default {
           onOk () {
             // 执行删除操作
             let deletePromise
+            const deleteUrl = $this.getDeleteUrl()
             if ($this.deleteHandler) {
-              deletePromise = $this.deleteHandler($this.deleteUrl, deleteList, rowList)
+              deletePromise = $this.deleteHandler(deleteUrl, deleteList, rowList)
             } else {
-              if (!$this.deleteUrl) {
+              if (!deleteUrl) {
                 this.$message.error(t('smart.table.noDeleteUrl'))
                 return false
               }
-              deletePromise = $this.apiService.postAjax($this.deleteUrl, deleteList)
+              deletePromise = $this.apiService.postAjax(deleteUrl, deleteList)
             }
             return deletePromise.then(data => {
               $this.$emit(EVENTS.AFTER_DELETE, data)
@@ -545,9 +566,9 @@ export default {
       }
       let resultPromise
       if (this.queryHandler) {
-        resultPromise = this.queryHandler(this.queryUrl, parameter)
+        resultPromise = this.queryHandler(this.getQueryUrl(), parameter)
       } else {
-        resultPromise = this.apiService.postAjax(this.queryUrl, parameter)
+        resultPromise = this.apiService.postAjax(this.getQueryUrl(), parameter)
       }
       resultPromise.then(data => {
         this.tableLoading = false
@@ -659,14 +680,24 @@ export default {
               this.$emit(EVENTS.BEFORE_EDIT, this.addEditModel)
             }
             const model = this.saveUpdateFormatter ? this.saveUpdateFormatter(Object.assign({}, data), this.addEditDialog.isAdd ? 'add' : 'edit') : data
+            const saveUrl = this.getSaveUrl()
+            const updateUrl = this.getUpdateUrl()
             if (this.saveUpdateHandler) {
-              return this.saveUpdateHandler(this.saveUpdateUrl, model, this.addEditDialog.isAdd ? 'add' : 'edit')
+              return this.saveUpdateHandler(this.addEditDialog.isAdd ? saveUrl : updateUrl, model, this.addEditDialog.isAdd ? 'add' : 'edit')
             } else {
-              if (!this.saveUpdateUrl) {
-                this.$message.error('未设置添加保存url：saveUpdateUrl，无法执行保存修改')
+              let errorMessage = null
+              if (this.addEditDialog.isAdd && !saveUrl) {
+                errorMessage = '未设置添加url，无法执行保存'
+              }
+              if (!this.addEditDialog.isAdd && !updateUrl) {
+                errorMessage = '未设置更新url，无法执行更新'
+              }
+
+              if (errorMessage !== null) {
+                this.$message.error(errorMessage)
                 return Promise.reject(noUrlError)
               }
-              return this.apiService.postAjax(this.saveUpdateUrl, model)
+              return this.apiService.postAjax(this.addEditDialog.isAdd ? saveUrl : updateUrl, model)
             }
           } else {
             return Promise.reject(validateError)
@@ -746,7 +777,7 @@ export default {
       const $this = this
       if (ident === EDIT) {
         // 是否有get url
-        const get = !!this.getUrl
+        const get = !!this.getOneUrl()
         let parameters = {}
         if (get) {
           const keysObj = CommonUtil.getObjectByKeys(this.keys, [row])[0]
@@ -761,12 +792,13 @@ export default {
           })
         }
         // 执行查询
-        this.apiService.postAjax(get ? this.getUrl : this.queryUrl, parameters)
+        this.apiService.postAjax(get ? this.getOneUrl() : this.getQueryUrl(), parameters)
           .then(result => {
             if (result) {
               $this.getAddEditFormVue().getForm().setFieldsValue(get ? result : (result.length === 1 ? result[0] : {}))
             }
           }).catch(error => {
+            // todo:I18N
           $this.errorMessage('查询发生错误', error)
         })
       }
@@ -838,7 +870,7 @@ export default {
       if (buttonConfig !== undefined && buttonConfig.topShow !== undefined) {
         topDefault = buttonConfig.topShow
       }
-      const top = [rowDefault, validatePermission(buttonConfig === undefined ? null : buttonConfig.permission, this.permissions)]
+      const top = [topDefault, validatePermission(buttonConfig === undefined ? null : buttonConfig.permission, this.permissions)]
 
       return [top[0] && top[1], row[0] && row[1]]
     },
