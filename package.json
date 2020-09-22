@@ -1,7 +1,7 @@
 {
   "name": "vue-ant-table",
-  "version": "0.3.0",
-  "author": "ming4762",
+  "version": "1.0.1",
+  "author": "zhongming4762@hotmail.com",
   "license": "MIT",
   "scripts": {
     "serve": "vue-cli-service serve",

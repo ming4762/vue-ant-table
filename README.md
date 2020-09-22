@@ -5,10 +5,10 @@
 参数 | 说明 | 类型 | 可选值 | 默认值
 ---|---|---|---|---
 url | url参数，推荐使用该prop， save/update/query/delete/get | Object 
-queryUrl|查询URL|String||
-saveUpdateUrl|添加/修改URL|String||
-deleteUrl|删除URL|String||
-getUrl|查询URL，如果为设置通过queryUrl查询|String||
+queryUrl|查询URL：废弃由URL代替|String||
+saveUpdateUrl|添加/修改URL：废弃由URL代替|String||
+deleteUrl|删除URL：废弃由URL代替|String||
+getUrl|查询URL，如果为设置通过queryUrl查询：废弃由URL代替|String||
 keys|对应实体类的key（必须）|Array||
 apiService|后台请求服务|Function||
 data|表格数据，如果存在，则增删改查无效|Array||
@@ -112,6 +112,7 @@ visible | 是否显示 | Boolean
 rules | 表格校验规则，设置true是否默认校验规则 | Boolean | Object
 span | 栅格分布列占据的宽度 ，参考Grid组件| Number |  |  24
 defaultValue | 默认值 | any
+dict | form项字典，radio,radioButton,select类型必须设置| Array<{key, value}>
 
 
 ### search
