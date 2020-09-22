@@ -13,7 +13,10 @@ const COLUMN_TYPE = Object.freeze({
   datetimePicker: 'datetime-picker',
   radio: 'radio',
   radioButton: 'radio-button',
-  select: 'select'
+  select: 'select',
+  // 滑动输入条
+  slider: 'slider',
+  rate: 'rate'
 })
 
 export default {
@@ -102,6 +105,17 @@ export default {
                 return <a-time-picker placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled}/>
               case COLUMN_TYPE.monthPicker:
                 return <a-month-picker placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled}/>
+              case COLUMN_TYPE.slider: {
+                // slider类型
+                const sliderData = {}
+                const dict = column.dict || []
+                dict.forEach(({ key, value }) => {
+                  sliderData[key] = value
+                })
+                return <a-slider placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled} marks={sliderData}/>
+              }
+              case COLUMN_TYPE.rate:
+                return <a-rate v-decorator={getDecorator(column)} allowHalf={true} disabled={column.disabled}/>
             }
             if (column.type === COLUMN_TYPE.datePicker || column.type === COLUMN_TYPE.datetimePicker) {
               return <a-date-picker placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled} show-time={column.type === 'datetime-picker'}/>

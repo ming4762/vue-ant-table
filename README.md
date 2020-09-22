@@ -87,7 +87,7 @@ permission| 按钮所需权限|
 key | 表格项的key，如未设置默认为prop的值 | String|
 prop | 表格数据列，必须| String
 label | 表格列标题 | String
-type | 列类型，修改类型会影响添加修改弹窗配置 | String |  boolean，number，input，textarea | input
+type | 列类型，修改类型会影响添加修改弹窗配置 | String |  boolean，number，input，textarea,timePicker,monthPicker,datePicker,datetimePicker,radio,radioButton,select,slider,rate | input
 table | 表格描述列， 参考Table配置 | Object
 form | 添加修改弹窗form配置，参考Form | Object
 search | 搜索form配置，参考SearchForm | Object
