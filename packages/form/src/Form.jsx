@@ -69,6 +69,9 @@ export default {
   beforeMount () {
     this.setDefaultValue()
   },
+  mounted () {
+    this.$emit('beforeMount', this)
+  },
   beforeUpdate () {
     this.setDefaultValue()
   },

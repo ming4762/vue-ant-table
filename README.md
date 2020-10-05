@@ -4,10 +4,11 @@
 
 参数 | 说明 | 类型 | 可选值 | 默认值
 ---|---|---|---|---
-queryUrl|查询URL|String||
-saveUpdateUrl|添加/修改URL|String||
-deleteUrl|删除URL|String||
-getUrl|查询URL，如果为设置通过queryUrl查询|String||
+url | url参数，推荐使用该prop， save/update/query/delete/get | Object 
+queryUrl|查询URL：废弃由URL代替|String||
+saveUpdateUrl|添加/修改URL：废弃由URL代替|String||
+deleteUrl|删除URL：废弃由URL代替|String||
+getUrl|查询URL，如果为设置通过queryUrl查询：废弃由URL代替|String||
 keys|对应实体类的key（必须）|Array||
 apiService|后台请求服务|Function||
 data|表格数据，如果存在，则增删改查无效|Array||
@@ -21,13 +22,14 @@ leftButtonInGroup|左侧按钮是否在按钮组内|Boolean ||true
 defaultSearchVisible|搜索栏是否默认显示|Boolean||false
 searchWithSymbol|搜索是否添加符号|Boolean||true
 queryParameterFormatter|参数格式化函数，参数：参数|Function|
+tableDataFormatter | 表格数据格式化函数，参数：tableData | Function
 queryHandler|查询执行器，自定义查询，参数（查询url, 参数）|Function
 errorHandler|错误执行，参数（错误信息, 错误对象Error）|Function
 deleteWarningHandler | 删除警告语回调函数，参数：删除的列数据 |Function
 deleteHandler | 删除执行器，参数(删除URL，删除的key列表，删除的数据列表)，返回promise|Function
 saveUpdateFormatter|添加/修改格式化工具，参数(addEditModel，add/edit)|Function
 saveUpdateHandler|添加修改执行器，参数（saveUpdateUrl,model,add/edit）| Function
-showIndex|是否显示序号列|Boolean | | true
+tableIndex|是否显示序号列|Boolean/object | | false
 rowSelection| 选中列配置，参考ant配置，不支持onChange，需要onChange请手动监听| Object
 defaultButtonConfig | 默认按钮配置，详见defaultButtonConfig| Object
 permissions | 用户权限列表| Array
@@ -41,9 +43,11 @@ addEditFormlayout| 添加修改表单布局 | String | inline，vertical，horiz
 addEditModalProps| 添加修改弹窗自定义函数,参数{ isAdd, tableName }，返回值{props: ModalProps, on: {}} |Function
 resizable | 是否启用可伸缩列 | Boolean | | false
 searchFormProps | 搜索form 自定义props | Object
+addEditFormSpan | 添加搜索表单默认的span | number
 
 ## 二、Scoped Slot
 > 支持antd table组件原生插槽，使用 table-插槽名 
+
 name | 说明 | 参数
 ---|---|---
 row-operation|行操作列插槽|text：当前行内容，record：当前行数据内容，index：当前行序号
@@ -69,8 +73,8 @@ change | 表格change事件，参考ant使用说明
 
 name | 说明 | 默认值
 ---|---|---
-row | 行按钮是否显示 | add: fasle，其他true
-top | 顶部按钮是否显示| true
+rowShow | 行按钮是否显示 | add: fasle，其他true
+topShow | 顶部按钮是否显示| true
 permission| 按钮所需权限| 
 
 ## 五、column
@@ -83,7 +87,7 @@ permission| 按钮所需权限|
 key | 表格项的key，如未设置默认为prop的值 | String|
 prop | 表格数据列，必须| String
 label | 表格列标题 | String
-type | 列类型，修改类型会影响添加修改弹窗配置 | String |  boolean，number，input，textarea | input
+type | 列类型，修改类型会影响添加修改弹窗配置 | String |  boolean，number，input，textarea,timePicker,monthPicker,datePicker,datetimePicker,radio,radioButton,select,slider,rate | input
 table | 表格描述列， 参考Table配置 | Object
 form | 添加修改弹窗form配置，参考Form | Object
 search | 搜索form配置，参考SearchForm | Object
@@ -97,6 +101,7 @@ search | 搜索form配置，参考SearchForm | Object
 ---|---|---|---|---
 visible | 是否显示该列 | Boolean
 summary | 自定义合计内容，参数（列内容数组、列信息、表格数据） | Function
+config | 是否支持列显示隐藏配置 | boolean | | true
 
 ### form
 > form配置
@@ -107,6 +112,8 @@ visible | 是否显示 | Boolean
 rules | 表格校验规则，设置true是否默认校验规则 | Boolean | Object
 span | 栅格分布列占据的宽度 ，参考Grid组件| Number |  |  24
 defaultValue | 默认值 | any
+dict | form项字典，radio,radioButton,select类型必须设置| Array<{key, value}>
+
 
 ### search
 > 搜索form配置

@@ -1,3 +1,24 @@
+/**
+ * 字段类型
+ * @type {Readonly<{number: string, input: string, boolean: string, textarea: string, "time-picker": string, "datetime-picker": string, "date-picker": string, "month-picker": string}>}
+ */
+const COLUMN_TYPE = Object.freeze({
+  boolean: 'boolean',
+  number: 'number',
+  input: 'input',
+  textarea: 'textarea',
+  timePicker: 'time-picker',
+  monthPicker: 'month-picker',
+  datePicker: 'date-picker',
+  datetimePicker: 'datetime-picker',
+  radio: 'radio',
+  radioButton: 'radio-button',
+  select: 'select',
+  // 滑动输入条
+  slider: 'slider',
+  rate: 'rate'
+})
+
 export default {
   name: 's-form-item',
   props: {
@@ -72,14 +93,60 @@ export default {
               return $slots.default
             }
             switch (column.type) {
-              case 'boolean':
+              case COLUMN_TYPE.boolean:
                 return <a-switch v-decorator={getDecorator(column)} disabled={column.disabled}/>
-              case 'number':
+              case COLUMN_TYPE.number:
                 return <a-input-number v-decorator={getDecorator(column)} disabled={column.disabled}/>
-              case 'input':
+              case COLUMN_TYPE.input:
                 return <a-input placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled}/>
-              case 'textarea':
+              case COLUMN_TYPE.textarea:
                 return <a-textarea placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled}/>
+              case COLUMN_TYPE.timePicker:
+                return <a-time-picker placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled}/>
+              case COLUMN_TYPE.monthPicker:
+                return <a-month-picker placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled}/>
+              case COLUMN_TYPE.slider: {
+                // slider类型
+                const sliderData = {}
+                const dict = column.dict || []
+                dict.forEach(({ key, value }) => {
+                  sliderData[key] = value
+                })
+                return <a-slider placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled} marks={sliderData}/>
+              }
+              case COLUMN_TYPE.rate:
+                return <a-rate v-decorator={getDecorator(column)} allowHalf={true} disabled={column.disabled}/>
+            }
+            if (column.type === COLUMN_TYPE.datePicker || column.type === COLUMN_TYPE.datetimePicker) {
+              return <a-date-picker placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled} show-time={column.type === 'datetime-picker'}/>
+            }
+            // 遍历按钮组
+            if (column.type === COLUMN_TYPE.radio || column.type === COLUMN_TYPE.radioButton) {
+              const dict = column.dict || []
+              return <a-radio-group v-decorator={getDecorator(column)} disabled={column.disabled}>
+                {
+                  dict.map(({ key, value, disabled }) => {
+                    if (column.type === COLUMN_TYPE.radio) {
+                      return <a-radio key={key} disabled={disabled === true} value={key}>{value}</a-radio>
+                    } else {
+                      return <a-radio-button key={key} disabled={disabled === true} value={key}>{value}</a-radio-button>
+                    }
+                  })
+                }
+              </a-radio-group>
+            }
+            // select 类型
+            if (column.type === COLUMN_TYPE.select) {
+              const dict = column.dict || []
+              return <a-select allowClear={true} placeholder={getPlaceholder(column)} v-decorator={getDecorator(column)} disabled={column.disabled}>
+                {
+                  dict.map(({ key, value, disabled }) => {
+                    return <a-select-option value={key}>
+                      {value}
+                    </a-select-option>
+                  })
+                }
+              </a-select>
             }
           })()
         }
