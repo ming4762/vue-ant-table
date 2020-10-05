@@ -48,11 +48,11 @@ const OPERATION_SLOT_NAME = 'operation_ming'
  * 按钮尺寸
  * @type {{default: string, middle: string}}
  */
-const BUTTON_SIZE = {
+const BUTTON_SIZE = Object.freeze({
   default: 'default',
   middle: 'middle',
   small: 'small'
-}
+})
 
 // 表格尺寸
 const TABLE_SIZE = BUTTON_SIZE
@@ -1254,29 +1254,6 @@ export default {
           </a-button>
         </a-form-item>
       </div>
-      return [
-        (
-          <a-form-item>
-            <a-button
-              icon="search"
-              size={this.getButtonSize()}
-              onClick={this.handleSearch}
-              type="primary">
-              {t('smart.common.search')}
-            </a-button>
-          </a-form-item>
-        ),
-        (
-          <a-form-item>
-            <a-button
-              icon="undo"
-              size={this.getButtonSize()}
-              onClick={this.handleRestSearch}>
-              {t('smart.common.reset')}
-            </a-button>
-          </a-form-item>
-        )
-      ]
     },
     renderTableAlert () {
       return this.$slots['table-alert']
