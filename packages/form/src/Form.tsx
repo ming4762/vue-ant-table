@@ -130,16 +130,12 @@ export default defineComponent({
     return {
       hiddenFormColumns,
       showFormInlineColumns,
-      showFormColumns,
-      test: {
-        labelCol: { span: 4 },
-        wrapperCol: { span: 14 }
-      }
+      showFormColumns
     }
   },
   created () {
     const { defaultSpan, columns, layout } = this
-    const { showColumns, inlineColumns, hiddenFormColumns } = convertColumnOption(defaultSpan, columns, layout)
+    const { showColumns, inlineColumns, hiddenFormColumns } = convertColumnOption(this.defaultSpan, this.columns, this.layout)
     this.hiddenFormColumns = hiddenFormColumns
     this.showFormInlineColumns = inlineColumns
     this.showFormColumns = showColumns
