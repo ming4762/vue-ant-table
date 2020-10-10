@@ -1,4 +1,4 @@
-import { defineComponent, PropType, Slot, VNode } from 'vue'
+import { defineComponent, PropType, Slot, VNode, toRefs, ref, watch } from 'vue'
 
 import { FormColumn } from '../../Types'
 
@@ -40,9 +40,10 @@ const convertColumnOption = (defaultSpan: number, columns: Array<FormColumn>, la
   // 行内列
   const inlineColumns: Array<FormColumn> = []
   // 隐藏列
-  const hiddenFormColumns: Array<FormColumn> = []
+  const hiddenColumns: Array<FormColumn> = []
   let index = 0
-  columns.forEach((item) => {
+  columns.forEach((formColumn) => {
+    const item = Object.assign({}, formColumn)
     // 设置key
     if (!item.key) {
       item.key = item.prop
@@ -52,7 +53,7 @@ const convertColumnOption = (defaultSpan: number, columns: Array<FormColumn>, la
       item.type = 'input'
     }
     if (item.visible === false) {
-      hiddenFormColumns.push(item)
+      hiddenColumns.push(item)
     } else {
       if (layout === LAYOUT[LAYOUT.inline]) {
         inlineColumns.push(item)
@@ -76,7 +77,7 @@ const convertColumnOption = (defaultSpan: number, columns: Array<FormColumn>, la
   return {
     showColumns,
     inlineColumns,
-    hiddenFormColumns
+    hiddenColumns
   }
 }
 
@@ -114,31 +115,36 @@ export default defineComponent({
       default: 24
     }
   },
-  // setup (props) {
-  //   // 转换列信息
-  //   const { showColumns: showFormColumns, inlineColumns: showFormInlineColumns, hiddenFormColumns } = convertColumnOption(defaultSpan, columns, layout)
-  //   return {
-  //     hiddenFormColumns,
-  //     showFormInlineColumns,
-  //     showFormColumns
-  //   }
-  // },
-  data () {
-    const hiddenFormColumns: Array<FormColumn> = []
-    const showFormInlineColumns: Array<FormColumn> = []
-    const showFormColumns: Array<Array<FormColumn>> = []
+  setup (props) {
+    // 处理Columns
+    const { defaultSpan, columns, layout } = toRefs(props)
+    const hiddenFormColumns = ref<Array<FormColumn>>([])
+    const showFormInlineColumns = ref<Array<FormColumn>>([])
+    const showFormColumns = ref<Array<Array<FormColumn>>>([])
+    // 转换函数
+    const convertColumns = () => {
+      const { showColumns, inlineColumns, hiddenColumns } = convertColumnOption(defaultSpan.value, columns.value, layout.value)
+      hiddenFormColumns.value = hiddenColumns
+      showFormInlineColumns.value = inlineColumns
+      showFormColumns.value = showColumns
+    }
+    // 监控属性变化
+    watch(defaultSpan, convertColumns)
+    watch(columns, convertColumns)
+    watch(layout, convertColumns)
+    // 初始化转换
+    convertColumns()
+
     return {
       hiddenFormColumns,
       showFormInlineColumns,
       showFormColumns
     }
   },
-  created () {
-    const { defaultSpan, columns, layout } = this
-    const { showColumns, inlineColumns, hiddenFormColumns } = convertColumnOption(this.defaultSpan, this.columns, this.layout)
-    this.hiddenFormColumns = hiddenFormColumns
-    this.showFormInlineColumns = inlineColumns
-    this.showFormColumns = showColumns
+  watch: {
+  },
+  data () {
+    return {}
   },
   methods: {
     /**
