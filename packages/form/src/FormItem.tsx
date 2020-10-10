@@ -66,10 +66,13 @@ export default defineComponent({
     }
   },
   render () {
-    const { $attrs: props, getLabel, $slots, column, getPlaceholder, handleChange } = this
+    const props = this.$attrs
+    const column = this.column
+    const { getLabel, $slots, getPlaceholder, handleChange } = this
     return (
       <a-form-item
         {...props}
+        name={column.key}
         label={getLabel()}>
         {
           (() => {

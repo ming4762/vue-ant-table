@@ -1,8 +1,9 @@
 <template>
   <div class="hello" style="padding: 20px">
+    <Test/>
     <s-table/>
     <button @click="handleClick">abc</button>
-    <s-form v-model:model="model" :layout="layout" :columns="columns">
+    <s-form ref="form" v-model:model="model" :layout="layout" :columns="columns">
       <template v-slot:adf="{}">
         <a-input></a-input>
 <!--        <a-form-item :wrapperCol="{span: 18}" :labelCol="{span: 6}"  label="adf">-->
@@ -17,10 +18,14 @@
 </template>
 
 <script lang="ts">
+import Test from './Test.vue'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'HelloWorld',
+  components: {
+    Test
+  },
   props: {
     msg: String
   },
@@ -34,25 +39,35 @@ export default defineComponent({
       console.log(model, column)
     },
     handleClick () {
-      this.layout = 'vertical'
-      this.columns.push({
-        prop: 'name',
-        label: '用户名'
-      })
-      this.columns = Object.assign(this.columns, [])
-      console.log(this.columns)
+      console.log(this.$refs.form)
+      const form: any = this.$refs.form
+      console.log(form.model)
+      form.validate()
+        .then(() => {
+          console.log('success')
+        }).catch((error: any) => {
+          console.log(error)
+        })
+      // this.$refs['form'].validate()
+      // this.layout = 'vertical'
+      // this.columns.push({
+      //   prop: 'name',
+      //   label: '用户名'
+      // })
+      // this.columns = Object.assign(this.columns, [])
+      // console.log(this.columns)
     }
   },
   data () {
     return {
       layout: 'horizontal',
       model: {
-        adf: '1231'
+        name2: ''
       },
       columns: [
         {
-          prop: '123',
-          label: 'abc',
+          prop: 'name2',
+          label: '姓名2',
           rules: true
         },
         {

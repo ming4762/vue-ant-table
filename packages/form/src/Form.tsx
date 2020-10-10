@@ -1,9 +1,10 @@
-import { defineComponent, PropType, Slot, VNode, toRefs, ref, watch } from 'vue'
+import { defineComponent, PropType, Slot, VNode, toRefs, ref, watch, reactive } from 'vue'
 
 import { FormColumn } from '../../Types'
 
 import FormItem from './FormItem'
 import { Row, Col } from 'ant-design-vue'
+import { useForm } from '@ant-design-vue/use'
 
 enum LAYOUT {
   inline,
@@ -30,6 +31,32 @@ const defaultFormCols = {
 }
 
 /**
+ * 获取校验规则
+ * @param formColumn
+ */
+const getRules = (formColumn: FormColumn): Array<object> | null => {
+  const rules = formColumn.rules
+  if (!rules) {
+    return null
+  }
+  if (rules === true) {
+    return [
+      {
+        required: true,
+        message: '请输入' + formColumn.label
+      }
+    ]
+  }
+  if (typeof rules === 'object') {
+    return [rules]
+  }
+  if (Array.isArray(rules)) {
+    return rules
+  }
+  return null
+}
+
+/**
  * 转换列信息
  * @param defaultSpan 默认span
  * @param columns 列信息
@@ -41,6 +68,8 @@ const convertColumnOption = (defaultSpan: number, columns: Array<FormColumn>, la
   const inlineColumns: Array<FormColumn> = []
   // 隐藏列
   const hiddenColumns: Array<FormColumn> = []
+  // 校验规则
+  const formRules: {[index: string]: Array<object>} = {}
   let index = 0
   columns.forEach((formColumn) => {
     const item = Object.assign({}, formColumn)
@@ -55,6 +84,11 @@ const convertColumnOption = (defaultSpan: number, columns: Array<FormColumn>, la
     if (item.visible === false) {
       hiddenColumns.push(item)
     } else {
+      // 获取校验规则
+      const rules = getRules(item)
+      if (rules) {
+        formRules[item.key] = rules
+      }
       if (layout === LAYOUT[LAYOUT.inline]) {
         inlineColumns.push(item)
       } else {
@@ -77,7 +111,8 @@ const convertColumnOption = (defaultSpan: number, columns: Array<FormColumn>, la
   return {
     showColumns,
     inlineColumns,
-    hiddenColumns
+    hiddenColumns,
+    formRules
   }
 }
 
@@ -117,16 +152,18 @@ export default defineComponent({
   },
   setup (props) {
     // 处理Columns
-    const { defaultSpan, columns, layout } = toRefs(props)
+    const { defaultSpan, columns, layout, model } = toRefs(props)
     const hiddenFormColumns = ref<Array<FormColumn>>([])
     const showFormInlineColumns = ref<Array<FormColumn>>([])
     const showFormColumns = ref<Array<Array<FormColumn>>>([])
+    let rules = {}
     // 转换函数
     const convertColumns = () => {
-      const { showColumns, inlineColumns, hiddenColumns } = convertColumnOption(defaultSpan.value, columns.value, layout.value)
+      const { showColumns, inlineColumns, hiddenColumns, formRules } = convertColumnOption(defaultSpan.value, columns.value, layout.value)
       hiddenFormColumns.value = hiddenColumns
       showFormInlineColumns.value = inlineColumns
       showFormColumns.value = showColumns
+      rules = reactive(formRules)
     }
     // 监控属性变化
     watch(defaultSpan, convertColumns)
@@ -134,17 +171,30 @@ export default defineComponent({
     watch(layout, convertColumns)
     // 初始化转换
     convertColumns()
-
+    // 处理form
     return {
       hiddenFormColumns,
       showFormInlineColumns,
-      showFormColumns
+      showFormColumns,
+      rules
     }
   },
-  watch: {
-  },
   data () {
-    return {}
+    return {
+      validate: null,
+      validateFields: null,
+      scrollToField: null,
+      resetFields: null,
+      clearValidate: null
+    }
+  },
+  mounted () {
+    const form: any = this.$refs.form
+    this.validate = form.validate
+    this.validateFields = form.validateFields
+    this.scrollToField = form.scrollToField
+    this.resetFields = form.resetFields
+    this.clearValidate = form.clearValidate
   },
   methods: {
     /**
@@ -167,7 +217,7 @@ export default defineComponent({
      * @param column
      */
     getFormItemProps (column: FormColumn) {
-      const { span } = column
+      const span = column.span
       const { labelCol, wrapperCol } = defaultFormCols
       const props: {[index: string]: any} = column.props || {}
       if (!props.labelCol) {
@@ -189,8 +239,11 @@ export default defineComponent({
           }
         }
       }
+      // 设置校验规则
+      // const validateInfo = this.validateInfos[column.key]
       return {
         ...props,
+        // ...validateInfo,
         column
       }
     },
@@ -310,23 +363,25 @@ export default defineComponent({
     }
   },
   render () {
-    const { $attrs, layout, renderHiddenColumns, renderInlineColumns, renderColumns, hiddenFormColumns, showFormInlineColumns, showFormColumns } = this
+    const { renderHiddenColumns, renderInlineColumns, renderColumns } = this
     return (
       <a-form
         {...{
-          attrs: $attrs
+          attrs: this.$attrs
         }}
         ref="form"
-        layout={layout}>
+        model={this.model}
+        rules={this.rules}
+        layout={this.layout}>
         {
           // 渲染隐藏列
-          renderHiddenColumns(hiddenFormColumns)
+          renderHiddenColumns(this.hiddenFormColumns)
         }
         {
-          renderInlineColumns(showFormInlineColumns)
+          renderInlineColumns(this.showFormInlineColumns)
         }
         {
-          renderColumns(showFormColumns)
+          renderColumns(this.showFormColumns)
         }
       </a-form>
     )
