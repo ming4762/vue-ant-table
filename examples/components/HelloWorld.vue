@@ -1,7 +1,8 @@
 <template>
   <div class="hello" style="padding: 20px">
     <s-table/>
-    <s-form v-model:model="model" layout="horizontal" :columns="columns">
+    <button @click="handleClick">abc</button>
+    <s-form v-model:model="model" :layout="layout" :columns="columns">
       <template v-slot:adf="{}">
         <a-input></a-input>
 <!--        <a-form-item :wrapperCol="{span: 18}" :labelCol="{span: 6}"  label="adf">-->
@@ -31,17 +32,28 @@ export default defineComponent({
   methods: {
     handleTest (model: any, column: any) {
       console.log(model, column)
+    },
+    handleClick () {
+      this.layout = 'vertical'
+      this.columns.push({
+        prop: 'name',
+        label: '用户名'
+      })
+      this.columns = Object.assign(this.columns, [])
+      console.log(this.columns)
     }
   },
   data () {
     return {
+      layout: 'horizontal',
       model: {
         adf: '1231'
       },
       columns: [
         {
           prop: '123',
-          label: 'abc'
+          label: 'abc',
+          rules: true
         },
         {
           prop: 'adf',
