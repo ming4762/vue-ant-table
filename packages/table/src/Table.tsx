@@ -7,7 +7,8 @@ import { defineComponent } from 'vue'
  * 2020-10-07 11:09
  */
 export default defineComponent({
-  name: 's-table',
+  name: 'STable',
+
   render () {
     return (
       <div>abc</div>
