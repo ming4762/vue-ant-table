@@ -1,8 +1,9 @@
 <template>
   <div class="hello" style="padding: 20px">
-    <Test/>
+<!--    <Test/>-->
     <s-table/>
-    <button @click="handleClick">abc</button>
+    <a-button @click="handleTestSetField">测试</a-button>
+<!--    <button @click="handleClick">abc</button>-->
     <s-form ref="form" v-model:model="model" :layout="layout" :columns="columns">
       <template v-slot:adf="{}">
         <a-input></a-input>
@@ -18,13 +19,13 @@
 </template>
 
 <script lang="ts">
-import Test from './Test.vue'
+// import Test from './Test.vue'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'HelloWorld',
   components: {
-    Test
+    // Test
   },
   props: {
     msg: String
@@ -35,6 +36,14 @@ export default defineComponent({
     }
   },
   methods: {
+    handleTestSetField () {
+      const form: any = this.$refs.form
+      form.setFields({
+        name2: '这是测试',
+        name3: '这是测试3'
+      })
+      // form.setField('name2', '这是一个测试')
+    },
     handleTest (model: any, column: any) {
       console.log(model, column)
     },
@@ -68,6 +77,11 @@ export default defineComponent({
         {
           prop: 'name2',
           label: '姓名2',
+          rules: true
+        },
+        {
+          prop: 'name3',
+          label: '姓名3',
           rules: true
         },
         {

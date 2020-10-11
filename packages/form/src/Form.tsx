@@ -4,6 +4,7 @@ import { FormColumn } from '../../Types'
 
 import FormItem from './FormItem'
 import { Row, Col } from 'ant-design-vue'
+import { useForm } from '@ant-design-vue/use'
 
 enum LAYOUT {
   inline,
@@ -151,7 +152,7 @@ export default defineComponent({
   },
   setup (props) {
     // 处理Columns
-    const { defaultSpan, columns, layout } = toRefs(props)
+    const { defaultSpan, columns, layout, model } = toRefs(props)
     const hiddenFormColumns = ref<Array<FormColumn>>([])
     const showFormInlineColumns = ref<Array<FormColumn>>([])
     const showFormColumns = ref<Array<Array<FormColumn>>>([])
@@ -170,32 +171,51 @@ export default defineComponent({
     watch(layout, convertColumns)
     // 初始化转换
     convertColumns()
+
+    // 设置formModel
+    const formModel = reactive(Object.assign({}, props.model))
+    const { resetFields, validate, validateInfos } = useForm(formModel, rules)
+    // watch(model, () => {
+    //   formModel.value = model.value
+    // })
+
     // 处理form
     return {
       hiddenFormColumns,
       showFormInlineColumns,
       showFormColumns,
-      rules
+      rules,
+      formModel,
+      resetFields,
+      validate,
+      validateInfos
     }
   },
   data () {
     return {
-      validate: null,
       validateFields: null,
       scrollToField: null,
-      resetFields: null,
       clearValidate: null
     }
   },
   mounted () {
     const form: any = this.$refs.form
-    this.validate = form.validate
     this.validateFields = form.validateFields
     this.scrollToField = form.scrollToField
-    this.resetFields = form.resetFields
     this.clearValidate = form.clearValidate
+    watch(this.formModel, () => {
+      this.$emit('update:model', Object.assign({}, this.formModel))
+    })
   },
   methods: {
+    // ---------- 公共函数 ---------
+    setFields (data: any) {
+      this.formModel = Object.assign(this.formModel, data)
+    },
+    setField (key: any, value: any) {
+      this.formModel[key] = value
+    },
+    // -------- 非公共函数 ------
     /**
      * 是否使用插槽
      * @param column
@@ -207,9 +227,7 @@ export default defineComponent({
      * model改变触发
      */
     handleModelChange (value: any, column: FormColumn) {
-      const data: {[index: string]: any} = {}
-      data[column.key] = value
-      this.$emit('update:model', Object.assign({}, this.model, data))
+      this.formModel[column.key] = value
     },
     /**
      * 获取item props
@@ -239,10 +257,10 @@ export default defineComponent({
         }
       }
       // 设置校验规则
-      // const validateInfo = this.validateInfos[column.key]
+      const validateInfo = this.validateInfos[column.key]
       return {
         ...props,
-        // ...validateInfo,
+        ...validateInfo,
         column
       }
     },
@@ -291,7 +309,7 @@ export default defineComponent({
             {
               this.hiddenFormColumns.map(column => {
                 return <FormItem
-                  value={this.model[column.key]}
+                  value={this.formModel[column.key]}
                   onValue-change={(value: any) => {
                     handleModelChange(value, column)
                   }}
@@ -356,21 +374,20 @@ export default defineComponent({
             onValue-change={(value: any) => {
               handleModelChange(value, column)
             }}
-            value={this.model[column.key]}/>
+            value={this.formModel[column.key]}/>
         )
       }
     }
   },
   render () {
-    const { renderHiddenColumns, renderInlineColumns, renderColumns } = this
+    const { renderHiddenColumns, renderInlineColumns } = this
     return (
       <a-form
         {...{
           attrs: this.$attrs
         }}
         ref="form"
-        model={this.model}
-        rules={this.rules}
+        validateTrigger={['']}
         layout={this.layout}>
         {
           // 渲染隐藏列
@@ -380,7 +397,7 @@ export default defineComponent({
           renderInlineColumns(this.showFormInlineColumns)
         }
         {
-          renderColumns(this.showFormColumns)
+          this.renderColumns(this.showFormColumns)
         }
       </a-form>
     )
