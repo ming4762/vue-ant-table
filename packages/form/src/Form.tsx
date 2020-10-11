@@ -4,7 +4,6 @@ import { FormColumn } from '../../Types'
 
 import FormItem from './FormItem'
 import { Row, Col } from 'ant-design-vue'
-import { useForm } from '@ant-design-vue/use'
 
 enum LAYOUT {
   inline,
@@ -152,7 +151,7 @@ export default defineComponent({
   },
   setup (props) {
     // 处理Columns
-    const { defaultSpan, columns, layout, model } = toRefs(props)
+    const { defaultSpan, columns, layout } = toRefs(props)
     const hiddenFormColumns = ref<Array<FormColumn>>([])
     const showFormInlineColumns = ref<Array<FormColumn>>([])
     const showFormColumns = ref<Array<Array<FormColumn>>>([])
