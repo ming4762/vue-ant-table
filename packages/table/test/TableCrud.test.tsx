@@ -13,7 +13,10 @@ export default defineComponent({
       columns: [
         {
           prop: 'name',
-          label: '姓名'
+          label: '姓名',
+          search: {
+            symbol: 'like'
+          }
         }
       ] as Array<TableColumn>,
       search: {

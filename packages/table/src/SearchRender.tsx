@@ -38,12 +38,7 @@ export default function searchRender (searchParameter: CrudSearch, searchColumns
   }
   // 设置插槽
   searchFormProps.slots = createSlots(slots)
-  searchFormProps.columns = [
-    {
-      prop: 'name',
-      label: '姓名'
-    }
-  ]
+  searchFormProps.columns = searchColumns
 
   const renderSearch = () => {
     return (

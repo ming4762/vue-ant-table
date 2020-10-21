@@ -239,10 +239,10 @@ export default defineComponent({
     }
   },
   setup (props, { slots }) {
-    // 获取搜索
-    const searchRender = SearchRender(props.search, [{}], slots)
     // 转换列信息
     const computedColumn = computed(() => convertColumns(props.columns, props.hasOperaColumn, props.opreaColumnWidth))
+    // 获取搜索
+    const searchRender = SearchRender(props.search, computedColumn.value.searchColumns, slots)
     console.log(computedColumn)
     return {
       ...searchRender,
