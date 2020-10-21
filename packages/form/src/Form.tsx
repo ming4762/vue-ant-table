@@ -1,6 +1,6 @@
 import { defineComponent, PropType, Slot, VNode, toRefs, ref, watch, reactive } from 'vue'
 
-import { FormColumn } from '../../Types'
+import { FormColumn } from '../../utils/types/Types'
 
 import FormItem from './FormItem'
 import { Row, Col } from 'ant-design-vue'

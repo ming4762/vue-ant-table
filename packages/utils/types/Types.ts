@@ -31,6 +31,18 @@ export declare interface SearchColumn {
   symbol?: string
 }
 
+export declare interface TableBaseColumn extends CommonColumn {
+  width?: number;
+  title?: string;
+  fixed?: boolean | string;
+  align?: string;
+  slots?: object;
+  dataIndex?: string;
+  summary?: Function;
+  visible?: boolean;
+  config?: boolean;
+}
+
 /**
  * 表格配置项
  */
@@ -64,3 +76,54 @@ export declare interface ButtonConfig {
   // 删除按钮配置
   delete?: ButtonConfigItem;
 }
+
+/**
+ * CRUD URL
+ */
+export declare interface CrudUrl {
+  save?: string;
+  update?: string;
+  query?: string;
+  delete?: string;
+  get?: string;
+}
+
+/**
+ * crud 搜索项配置
+ */
+export declare interface CrudSearch {
+  defaultVisible: boolean;
+  withSymbol: boolean;
+  // 搜索按钮是否在右侧
+  buttonInRight: boolean;
+  // 搜索form props
+  props: object
+}
+
+/**
+ * 排序配置
+ */
+export declare interface Sort {
+  // 默认的排序列
+  defaultSortColumn?: String;
+  // 默认的排序方向
+  defaultSortOrder?: String;
+}
+
+export declare interface AddEditForm {
+  // 添加修改表单布局
+  layout: string;
+  span: number;
+  props?: Function;
+}
+
+/**
+ * 表格显示配置
+ */
+export declare interface TableShowConfig {
+  key: string;
+  label: string;
+  visible: boolean;
+  fixed: string | boolean;
+}
+

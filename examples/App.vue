@@ -1,21 +1,20 @@
 <template>
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <MainTest msg="Welcome to Your Vue.js + TypeScript App"/>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import HelloWorld from './components/HelloWorld.vue'
+import MainTest from './components/MainTest.vue'
 
 export default defineComponent({
   name: 'App',
   components: {
-    HelloWorld
+    MainTest
   }
 })
 </script>
 
 <style>
 #app {
-  text-align: center;
 }
 </style>

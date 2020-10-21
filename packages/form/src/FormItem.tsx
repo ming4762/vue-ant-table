@@ -1,6 +1,6 @@
 import { defineComponent, PropType, toRefs, computed } from 'vue'
 
-import { FormColumn } from '../../Types'
+import { FormColumn } from '../../utils/types/Types'
 
 const COLUMN_TYPE: {[index: string]: string} = Object.freeze({
   boolean: 'boolean',

@@ -1,7 +1,7 @@
 import defaultLang from './lang/zh_CN'
 import enUS from './lang/en_US'
 import koKR from './lang/ko_KR'
-import vue from 'vue'
+import * as vue from 'vue'
 import deepmerge from 'deepmerge'
 
 let lang: any = defaultLang || enUS || koKR
@@ -24,7 +24,7 @@ let i18nHandler: Function = (path: string, options: any) => {
   }
 }
 
-export const t = (path: string, options: any) => {
+export const t = (path: string, options?: any) => {
   let value = i18nHandler(path, options)
 
   if (value !== null && value !== undefined) return value
