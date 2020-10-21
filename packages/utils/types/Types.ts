@@ -127,3 +127,12 @@ export declare interface TableShowConfig {
   fixed: string | boolean;
 }
 
+/**
+ * 按钮组渲染参数
+ */
+export declare interface ButtonGroupRenderParameter {
+  hasLeftButton: boolean;
+  hasRightButton: boolean;
+  leftButtonInGroup: boolean;
+}
+

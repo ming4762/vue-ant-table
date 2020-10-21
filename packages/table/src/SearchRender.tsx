@@ -17,6 +17,12 @@ const createSlots = (slots: Slots) => {
   return result
 }
 
+/**
+ * 渲染搜索form
+ * @param searchParameter 搜索餐宿
+ * @param searchColumns 搜索列
+ * @param slots 插槽
+ */
 export default function searchRender (searchParameter: CrudSearch, searchColumns: Array<SearchColumn>, slots: Slots) {
   // 搜索显示
   const searchVisible = ref(searchParameter.defaultVisible)
