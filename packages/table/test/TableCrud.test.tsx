@@ -21,12 +21,22 @@ export default defineComponent({
       ] as Array<TableColumn>,
       search: {
         defaultVisible: true
-      } as CrudSearch
+      } as CrudSearch,
+      hasOperaColumn: false
+    }
+  },
+  methods: {
+    handleTestHasOperaColumn () {
+      this.hasOperaColumn = !this.hasOperaColumn
     }
   },
   render () {
     return <div>
+      <a-button-group>
+        <a-button onClick={this.handleTestHasOperaColumn}>测试hasOperaColumn</a-button>
+      </a-button-group>
       <s-table-crud
+        hasOperaColumn={this.hasOperaColumn}
         keys={['name']}
         search={this.search}
         columns={this.columns}></s-table-crud>
