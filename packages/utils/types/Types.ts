@@ -134,5 +134,19 @@ export declare interface ButtonGroupRenderParameter {
   hasLeftButton: boolean;
   hasRightButton: boolean;
   leftButtonInGroup: boolean;
+  buttonShow: ButtonShow;
+  size: string;
+  t: Function;
+}
+
+export declare interface BaseButtonShow {
+  row: boolean;
+  top: boolean;
+}
+
+export declare interface ButtonShow {
+  add: BaseButtonShow;
+  edit: BaseButtonShow;
+  delete: BaseButtonShow;
 }
 
