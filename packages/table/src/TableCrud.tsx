@@ -1,4 +1,4 @@
-import { defineComponent, PropType, computed } from 'vue'
+import { defineComponent, PropType, computed, watch, reactive, ref } from 'vue'
 
 import {
   CrudUrl,
@@ -29,12 +29,26 @@ const BUTTON_SIZE = Object.freeze({
 })
 
 /**
+ * 列转换数据
+ */
+interface ColumnsConvertData {
+  searchSymbol: {[index: string]: string};
+  tableColumns: Array<TableBaseColumn>;
+  searchColumns: Array<SearchColumn>;
+  addEditFormColumns: Array<FormColumn>;
+  columnConfig: {[index: string]: TableShowConfig};
+  tableSlots: Array<string>;
+}
+
+/**
  * 转换列信息
  * @param columns
  * @param hasOperaColumn
  * @param operaColumnWidth
  */
-const convertColumns = (columns: Array<TableColumn>, hasOperaColumn: boolean, operaColumnWidth: number) => {
+const convertColumns = (columns: Array<TableColumn>, hasOperaColumn: boolean, operaColumnWidth: number): ColumnsConvertData => {
+  console.log('ddddd')
+
   const scopedSlotsProperty = 'slots'
   const customRenderProperty = 'customRender'
   // 存储搜索符号
@@ -239,14 +253,21 @@ export default defineComponent({
     }
   },
   setup (props, { slots }) {
+    const columnsConvertData = ref<ColumnsConvertData>(convertColumns(props.columns, props.hasOperaColumn, props.opreaColumnWidth))
     // 转换列信息
-    const computedColumn = computed(() => convertColumns(props.columns, props.hasOperaColumn, props.opreaColumnWidth))
+    const doConvertColumns = () => {
+      columnsConvertData.value = convertColumns(props.columns, props.hasOperaColumn, props.opreaColumnWidth)
+    }
+    const computedOperaColumn = computed(() => props.hasOperaColumn.toString() + props.opreaColumnWidth)
+    watch(props.columns, doConvertColumns, {
+      deep: true
+    })
+    watch(computedOperaColumn, doConvertColumns)
     // 获取搜索
-    const searchRender = SearchRender(props.search, computedColumn.value.searchColumns, slots)
-    console.log(computedColumn)
+    const searchRender = SearchRender(props.search, columnsConvertData.value.searchColumns, slots)
     return {
       ...searchRender,
-      computedColumn
+      columnsConvertData
     }
   },
   methods: {
