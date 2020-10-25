@@ -1,5 +1,5 @@
 import { CrudSearch, SearchColumn } from '../../utils/types/Types'
-import { ref, Slots, Slot } from 'vue'
+import { ref, Slots, Slot, computed, Ref } from 'vue'
 
 /**
  * 创建插槽
@@ -23,43 +23,46 @@ const createSlots = (slots: Slots) => {
  * @param searchColumns 搜索列
  * @param slots 插槽
  */
-export default function searchRender (searchParameter: CrudSearch, searchColumns: Array<SearchColumn>, slots: Slots) {
+export default function searchRender (searchParameter: CrudSearch, searchColumns: Ref<Array<SearchColumn>>, slots: Slots) {
   // 搜索显示
   const searchVisible = ref(searchParameter.defaultVisible)
-  if (searchColumns.length === 0) {
-    return {
-      renderSearch () {
-        return ''
-      },
-      searchVisible
+  // 搜索form
+  const searchModel = ref({})
+  const computedSearchFormProps = computed(() => {
+    const searchFormProps: {[index: string]: any } = Object.assign({}, searchParameter.props)
+    // 设置layout search
+    if (Object.prototype.hasOwnProperty.call(searchFormProps, 'defaultSpan')) {
+      searchFormProps.layout = ''
+    } else {
+      searchFormProps.layout = 'inline'
     }
-  }
-  // 设置搜索props
-  const searchFormProps: {[index: string]: any} = Object.assign({}, searchParameter.props)
-  // 设置layoutsearchFormProps.hasOwnProperty('defaultSpan')
-  if (Object.prototype.hasOwnProperty.call(searchFormProps, 'defaultSpan')) {
-    searchFormProps.layout = null
-  } else {
-    searchFormProps.layout = 'inline'
-  }
-  // 设置插槽
-  searchFormProps.slots = createSlots(slots)
-  searchFormProps.columns = searchColumns
-
+    // 设置插槽
+    searchFormProps.slots = createSlots(slots)
+    searchFormProps.columns = searchColumns.value
+    return searchFormProps
+  })
   const renderSearch = () => {
+    if (computedSearchFormProps.value.columns.length === 0) {
+      return ''
+    }
     return (
       <div style={{ display: searchVisible.value ? '' : 'none' }}>
         <s-form
           {
-            ...searchFormProps
+            ...computedSearchFormProps.value
           }
+          onChange={ (data: any) => {
+            searchModel.value = data
+          } }
+          model={searchModel.value}
           ref="searchForm">
         </s-form>
       </div>
     )
   }
+
   return {
-    searchVisible,
-    renderSearch
+    renderSearch,
+    searchModel
   }
 }

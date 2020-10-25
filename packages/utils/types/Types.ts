@@ -1,3 +1,5 @@
+import { Ref } from 'vue'
+
 export declare interface CommonColumn {
   key: string;
   prop: string;
@@ -134,9 +136,8 @@ export declare interface ButtonGroupRenderParameter {
   hasLeftButton: boolean;
   hasRightButton: boolean;
   leftButtonInGroup: boolean;
-  buttonShow: ButtonShow;
+  buttonShow: Ref<ButtonShow>;
   size: string;
-  t: Function;
 }
 
 export declare interface BaseButtonShow {
@@ -144,9 +145,46 @@ export declare interface BaseButtonShow {
   top: boolean;
 }
 
-export declare interface ButtonShow {
+export declare interface ButtonShow extends Object {
   add: BaseButtonShow;
   edit: BaseButtonShow;
   delete: BaseButtonShow;
 }
+
+export declare interface TableLoadMethodParameter {
+  searchModel: Ref;
+  searchSymbol: Ref<{[index: string]: string}>;
+  errorHandler: Function;
+  t: Function;
+}
+
+/**
+ * 表格排序参数
+ */
+export declare interface TableSort {
+  sortName: string | null;
+  sortOrder: string | null;
+}
+
+/**
+ * 分页数据
+ */
+export declare interface PageData {
+  page: number;
+  pageSize: number;
+  total: number;
+}
+
+/**
+ * 列转换数据
+ */
+export declare interface ColumnsConvertData {
+  searchSymbol: {[index: string]: string};
+  tableColumns: Array<TableBaseColumn>;
+  searchColumns: Array<SearchColumn>;
+  addEditFormColumns: Array<FormColumn>;
+  columnConfig: {[index: string]: TableShowConfig};
+  tableSlots: Array<string>;
+}
+
 

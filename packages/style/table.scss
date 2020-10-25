@@ -1,0 +1,58 @@
+.smart-button-common-space {
+  margin-right: 8px;
+}
+.button-group-container {
+  padding: 10px 10px 5px;
+}
+.button-group-left {
+  display: inline-block;
+}
+.smart-search-container {
+  padding: 15px 15px 0 15px;
+  margin: 0 0 5px;
+  .search-button {
+    display: inline-block;
+  }
+  .ant-form-item {
+    margin-bottom: 0;
+  }
+}
+.button-group-right {
+  display: inline-block;
+  float: right;
+  line-height: 32px;
+  .item {
+    display: inline-block;
+    margin-right: 8px;
+    .anticon {
+      margin-left: 8px
+    }
+  }
+}
+
+.vue-ant-table .ant-table-pagination {
+  margin: 10px 0;
+}
+
+.vue-ant-table::after {
+  display: table;
+  content: '';
+}
+.vue-ant-table::after {
+  clear: both;
+}
+
+.resize-table-th {
+  position: relative;
+  .table-draggable-handle {
+    position: absolute;
+    transform: translate(0, 0) !important;
+    height: 100% !important;
+    bottom: 0;
+    left: auto !important;
+    right: -5px;
+    cursor: col-resize;
+    touch-action: none;
+  }
+}
+

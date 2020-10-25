@@ -1,4 +1,4 @@
-import { defineComponent, PropType, computed, watch, reactive, ref } from 'vue'
+import { defineComponent, PropType, computed, watch, ref, onMounted } from 'vue'
 
 import {
   CrudUrl,
@@ -7,16 +7,30 @@ import {
   TableColumn,
   Sort,
   AddEditForm,
-  CommonColumn,
   TableBaseColumn,
   SearchColumn,
   FormColumn,
-  TableShowConfig
+  TableShowConfig,
+  ButtonShow,
+  ButtonConfigItem
 } from '../../utils/types/Types'
+
+import '../../style/table.scss'
+import { t } from '../../../src/locale'
 
 import SearchRender from './SearchRender'
 
-const OPERATION_SLOT_NAME = 'operation_ming'
+import ButtonGroupRender from './ButtonGroupRender'
+
+import { TableLoad, convertColumns, OPERATION_SLOT_NAME } from './TableUtils'
+
+/**
+ * 插槽前缀
+ * @type {{table: string}}
+ */
+const SLOTS_PREFIX = {
+  table: 'table-'
+}
 
 /**
  * 按钮尺寸
@@ -29,113 +43,37 @@ const BUTTON_SIZE = Object.freeze({
 })
 
 /**
- * 列转换数据
+ * 验证权限
  */
-interface ColumnsConvertData {
-  searchSymbol: {[index: string]: string};
-  tableColumns: Array<TableBaseColumn>;
-  searchColumns: Array<SearchColumn>;
-  addEditFormColumns: Array<FormColumn>;
-  columnConfig: {[index: string]: TableShowConfig};
-  tableSlots: Array<string>;
+const validatePermission = (permission: string | null | undefined, permissions: Array<string> | null | undefined) => {
+  if (!permissions || permission === undefined || permission === null || permission === '') {
+    return true
+  }
+  return permissions.indexOf(permission) !== -1
 }
 
 /**
- * 转换列信息
- * @param columns
- * @param hasOperaColumn
- * @param operaColumnWidth
+ * 按钮是否显示
+ * @param buttonConfig
+ * @param topShow
+ * @param rowShow
+ * @param permissions
  */
-const convertColumns = (columns: Array<TableColumn>, hasOperaColumn: boolean, operaColumnWidth: number): ColumnsConvertData => {
-  console.log('ddddd')
-
-  const scopedSlotsProperty = 'slots'
-  const customRenderProperty = 'customRender'
-  // 存储搜索符号
-  const searchSymbol: {[index: string]: string} = {}
-  // 表格配置
-  const tableColumns: Array<TableBaseColumn> = []
-  // 搜索表单配置
-  const searchColumns: Array<SearchColumn> = []
-  // 添加修改form columns
-  const addEditFormColumns: Array<FormColumn> = []
-  // 表格插槽
-  const tableSlots: Array<string> = []
-  // 列配置信息
-  const columnConfig: {[index: string]: TableShowConfig} = {}
-
-  columns.forEach(item => {
-    // 设置key
-    if (!item.key) {
-      item.key = item.prop
-    }
-    // 通用列
-    const commonColumn: CommonColumn = {
-      key: item.key,
-      label: item.label,
-      prop: item.prop,
-      type: item.type
-    }
-    // 处理表格列
-    const tableCustom: TableBaseColumn = Object.assign({
-      key: item.key,
-      prop: item.key,
-      dataIndex: item.prop,
-      title: item.label,
-      visible: true,
-      fixed: false
-    }, item.table || {})
-    tableColumns.push(tableCustom)
-
-    // 处理搜索
-    if (item.search) {
-      searchColumns.push(Object.assign({}, commonColumn, item.search))
-      searchSymbol[item.key] = item.search.symbol || '='
-    }
-    // 添加修改FORM处理
-    addEditFormColumns.push(Object.assign({}, commonColumn, item.form))
-
-    // 处理表格插槽
-    if (Object.prototype.hasOwnProperty.call(tableCustom, scopedSlotsProperty) && Object.prototype.hasOwnProperty.call(tableCustom[scopedSlotsProperty], customRenderProperty)) {
-      const slots: any = tableCustom[scopedSlotsProperty]
-      const value = slots[customRenderProperty]
-      if (tableSlots.indexOf(value) === -1) {
-        tableSlots.push(slots[customRenderProperty])
-      }
-    }
-    // 处理列显示隐藏配置
-    const { config, visible, fixed } = tableCustom
-    const { key, label } = item
-    if (config !== false) {
-      columnConfig[item.key] = {
-        key: key,
-        label: label!,
-        visible: visible!,
-        fixed: fixed!
-      }
-    }
-    // 添加操作列
-    if (hasOperaColumn) {
-      tableColumns.push({
-        prop: OPERATION_SLOT_NAME,
-        key: OPERATION_SLOT_NAME,
-        title: '操作',
-        fixed: 'right',
-        align: 'center',
-        width: operaColumnWidth,
-        slots: { customRender: OPERATION_SLOT_NAME }
-      })
-    }
-  })
-
-  return {
-    searchSymbol,
-    tableColumns,
-    searchColumns,
-    addEditFormColumns,
-    columnConfig,
-    tableSlots
+const isButtonShow = (buttonConfig: ButtonConfigItem, topShow: boolean, rowShow: boolean, permissions: Array<string> | null | undefined) => {
+  // 行按钮处理
+  let rowDefault = rowShow
+  if (buttonConfig !== undefined && buttonConfig.rowShow !== undefined) {
+    rowDefault = buttonConfig.rowShow
   }
+  const row = [rowDefault, validatePermission(buttonConfig === undefined ? null : buttonConfig.permission, permissions)]
+  // 顶部按钮处理
+  let topDefault = topShow
+  if (buttonConfig !== undefined && buttonConfig.topShow !== undefined) {
+    topDefault = buttonConfig.topShow
+  }
+  const top = [topDefault, validatePermission(buttonConfig === undefined ? null : buttonConfig.permission, permissions)]
+
+  return [top[0] && top[1], row[0] && row[1]]
 }
 
 /**
@@ -179,7 +117,7 @@ export default defineComponent({
       })
     },
     // 操作列宽度
-    opreaColumnWidth: {
+    operaColumnWidth: {
       type: Number as PropType<number>,
       default: 200
     },
@@ -211,6 +149,11 @@ export default defineComponent({
       type: Boolean as PropType<boolean>,
       default: true
     },
+    // 行按钮是否是text类型
+    textRowButton: {
+      type: Boolean as PropType<boolean>,
+      default: false
+    },
     // 参数格式化函数
     queryParameterFormatter: Function as PropType<Function>,
     // 查询执行器
@@ -235,7 +178,7 @@ export default defineComponent({
     },
     size: {
       type: String as PropType<string>,
-      default: BUTTON_SIZE.small
+      default: BUTTON_SIZE.default
     },
     // 分页配置
     pagination: [Object, Boolean],
@@ -252,25 +195,219 @@ export default defineComponent({
       }
     }
   },
-  setup (props, { slots }) {
-    const columnsConvertData = ref<ColumnsConvertData>(convertColumns(props.columns, props.hasOperaColumn, props.opreaColumnWidth))
+  data () {
+    return {
+      // 行添加按钮样式
+      rowAddButtonType: this.textRowButton === true ? 'link' : '',
+      rowAddButtonText: this.textRowButton === true ? t('smart.table.addButtonText') : '',
+
+      // 行编辑按钮样式
+      rowEditButtonType: this.textRowButton === true ? 'link' : 'primary',
+      rowEditButtonText: this.textRowButton === true ? t('smart.table.editButtonText') : '',
+
+      // 行添加按钮样式
+      rowDeleteButtonType: this.textRowButton === true ? 'link' : 'danger',
+      rowDeleteButtonText: this.textRowButton === true ? t('smart.table.deleteButtonText') : '',
+      selectedRow: null
+    }
+  },
+  setup (props, { slots, emit }) {
+    // 错误执行器
+    const errorHandler = (message: string, error: any) => {
+      console.error(message)
+      console.error(error)
+    }
+
+    const searchSymbol = ref<{[index: string]: string}>({})
+    const tableColumns = ref<Array<TableBaseColumn>>([])
+    const searchColumns = ref<Array<SearchColumn>>([])
+    const addEditFormColumns = ref<Array<FormColumn>>([])
+    const tableSlots = ref<Array<string>>([])
+    const columnConfig = ref<{[index: string]: TableShowConfig}>({})
+
     // 转换列信息
     const doConvertColumns = () => {
-      columnsConvertData.value = convertColumns(props.columns, props.hasOperaColumn, props.opreaColumnWidth)
+      const columnsConvertData = convertColumns(props.columns, props.hasOperaColumn, props.operaColumnWidth)
+      searchSymbol.value = columnsConvertData.searchSymbol
+      tableColumns.value = columnsConvertData.tableColumns
+      searchColumns.value = columnsConvertData.searchColumns
+      addEditFormColumns.value = columnsConvertData.addEditFormColumns
+      tableSlots.value = columnsConvertData.tableSlots
+      columnConfig.value = columnsConvertData.columnConfig
     }
-    const computedOperaColumn = computed(() => props.hasOperaColumn.toString() + props.opreaColumnWidth)
-    watch(props.columns, doConvertColumns, {
-      deep: true
-    })
+    // 执行第一次转换
+    doConvertColumns()
+    const computedOperaColumn = computed(() => props.hasOperaColumn.toString() + props.operaColumnWidth)
+    // 监控数据变化，再次执行列转换
+    watch(props.columns, doConvertColumns)
     watch(computedOperaColumn, doConvertColumns)
+
     // 获取搜索
-    const searchRender = SearchRender(props.search, columnsConvertData.value.searchColumns, slots)
+    const searchRender = SearchRender(props.search, searchColumns, slots)
+
+    // 默认按钮显示计算属性
+    const computedButtonShow = computed<ButtonShow>(() => {
+      const result: ButtonShow = {
+        add: {
+          row: false,
+          top: true
+        },
+        edit: {
+          row: true,
+          top: true
+        },
+        delete: {
+          row: true,
+          top: true
+        }
+      }
+      const defaultButton = props.defaultButtonConfig || {}
+      for (const key of Object.keys(result)) {
+        const showConfig = isButtonShow(defaultButton[key], result[key].top, result[key].row, props.permissions)
+        result[key].top = showConfig[0]
+        result[key].row = showConfig[1]
+      }
+      return result
+    })
+
+    // 按钮组
+    const buttonGroupRender = ButtonGroupRender({
+      hasLeftButton: props.hasLeftButton,
+      hasRightButton: props.hasRightButton,
+      leftButtonInGroup: props.leftButtonInGroup,
+      buttonShow: computedButtonShow,
+      size: props.size
+    }, t, slots)
+
+    // 搜索函数
+    const tableLoad = TableLoad(props, {
+      searchModel: searchRender.searchModel,
+      searchSymbol,
+      errorHandler,
+      t
+    })
+    // 生命周期钩子加载完毕状态
+    onMounted(() => {
+      if (!props.data) {
+        tableLoad.load()
+      } else {
+        tableLoad.tableData.value = props.data
+      }
+    })
+
     return {
+      searchSymbol,
+      tableColumns,
+      addEditFormColumns,
+      tableSlots,
+      columnConfig,
+      computedButtonShow,
       ...searchRender,
-      columnsConvertData
+      ...buttonGroupRender,
+      ...tableLoad
     }
   },
   methods: {
+    /**
+     * 添加前操作
+     * @param row
+     */
+    handleBeforeAdd (row = null) {
+      if (row) this.selectedRow = row
+      // this.handleAddEditDialogShow(ADD, row)
+    },
+    handleBeforeEdit (row = null) {
+      // TODO: 开发中
+    },
+    handleDelete (row = null) {
+      // TODO: 开发中
+    },
+    createTableSlots () {
+      const { tableSlots, hasOperaColumn, $slots } = this
+      const slots: {[index: string]: any} = {}
+      // 添加表格自身插槽
+      Object.keys($slots).forEach(key => {
+        if (key.startsWith(SLOTS_PREFIX.table) && !slots[key]) {
+          slots[key.substring(SLOTS_PREFIX.table.length)] = $slots[key]
+        }
+      })
+      // 添加操作列插槽
+      if (hasOperaColumn) {
+        slots[OPERATION_SLOT_NAME] = ({ text, record, index }: any) => {
+          // 合计列显示NA
+          if (record.isSummary === true) {
+            return [
+              <span>N/A</span>
+            ]
+          }
+          const vnodes = []
+          if (this.computedButtonShow.add.row === true) {
+            vnodes.push(
+              <a-tooltip placement="top" title={t('smart.table.addButtonText')}>
+                <a-button
+                  type={this.rowAddButtonType}
+                  size="small"
+                  style="width: 50px; margin-right: 5px"
+                  onClick={() => { this.handleBeforeAdd(record) }}
+                  icon={this.textRowButton ? '' : 'plus'}>{this.rowAddButtonText}</a-button>
+              </a-tooltip>
+            )
+          }
+          if (this.computedButtonShow.edit.row === true) {
+            vnodes.push(
+              <a-tooltip placement="top" title={t('smart.table.editButtonText')}>
+                <a-button
+                  type={this.rowEditButtonType}
+                  size="small"
+                  style="width: 50px; margin-right: 5px"
+                  onClick={() => { this.handleBeforeEdit(record) }}
+                  icon={this.textRowButton ? '' : 'edit'}>{this.rowEditButtonText}</a-button>
+              </a-tooltip>
+            )
+          }
+          if (this.computedButtonShow.delete.row === true) {
+            vnodes.push(
+              <a-tooltip placement="top" title={t('smart.table.deleteButtonText')}>
+                <a-button
+                  type={this.rowDeleteButtonType}
+                  size="small"
+                  style="width: 50px;"
+                  onClick={() => { this.handleDelete(record) }}
+                  icon={this.textRowButton ? '' : 'delete'}>{this.rowDeleteButtonText}</a-button>
+              </a-tooltip>
+            )
+          }
+          // 处理插槽
+          const rowOperation = this.$slots['row-operation']
+          if (rowOperation) {
+            vnodes.push(rowOperation({ text, record, index }))
+          }
+          return vnodes
+        }
+      }
+      return slots
+    },
+    /**
+     * 渲染表格
+     */
+    renderTable () {
+      // TODO:待完善
+      const props = {
+        loading: this.tableLoading,
+        pagination: false,
+        keys: this.keys,
+        dataSource: this.tableData,
+        columns: this.tableColumns,
+        ...this.$attrs
+      }
+      return (
+        <s-table
+          { ...props }
+          vSlots={this.createTableSlots()}/>
+      )
+    }
+  },
+  watch: {
   },
   render () {
     return (
@@ -278,6 +415,14 @@ export default defineComponent({
         {
           // 渲染搜索div
           this.renderSearch()
+        }
+        {
+          // 渲染按钮组
+          this.renderButtonGroup()
+        }
+        {
+          // 渲染表格
+          this.renderTable()
         }
       </div>
     )

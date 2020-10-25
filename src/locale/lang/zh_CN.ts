@@ -11,6 +11,7 @@ export default {
       deleteAlert: '请选择要删除的数据',
       deleteWarning: '您确定要删除【%number】条数据吗？',
       noDeleteUrl: '未设置删除url：deleteUrl，无法执行删除',
+      noApiService: '未设置ApiService，无法执行操作',
       loadError: '加载数据失败',
       saveSuccess: '保存成功',
       saveError: '保存发生错误',

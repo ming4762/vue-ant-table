@@ -171,6 +171,18 @@ export default defineComponent({
     }
   },
   methods: {
+    createTableSlots () {
+      const scopeSlots: any = this.$slots
+      if (this.computedShowIndex === true) {
+        scopeSlots[TABLE_INDEX_SLOT_NAME] = (text: any, record: any, index: number) => {
+          return (
+            <span>{index + 1}</span>
+          )
+        }
+      }
+      console.log(scopeSlots)
+      return scopeSlots
+    }
   },
   render () {
     return (
@@ -178,7 +190,8 @@ export default defineComponent({
         {
           // props
           ...this.computedTableProps
-        }>
+        }
+        vSlots={this.createTableSlots()}>
       </a-table>
     )
   }

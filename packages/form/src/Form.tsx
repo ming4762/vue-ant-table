@@ -152,7 +152,7 @@ export default defineComponent({
   },
   setup (props) {
     // 处理Columns
-    const { defaultSpan, columns, layout, model } = toRefs(props)
+    const { defaultSpan, columns, layout } = toRefs(props)
     const hiddenFormColumns = ref<Array<FormColumn>>([])
     const showFormInlineColumns = ref<Array<FormColumn>>([])
     const showFormColumns = ref<Array<Array<FormColumn>>>([])
@@ -204,7 +204,9 @@ export default defineComponent({
     this.scrollToField = form.scrollToField
     this.clearValidate = form.clearValidate
     watch(this.formModel, () => {
-      this.$emit('update:model', Object.assign({}, this.formModel))
+      const modelData = Object.assign({}, this.formModel)
+      this.$emit('change', modelData)
+      this.$emit('update:model', modelData)
     })
   },
   methods: {

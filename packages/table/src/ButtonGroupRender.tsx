@@ -1,4 +1,5 @@
-import { ref, VNode } from 'vue'
+import { Slots } from 'vue'
+import { PlusOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 
 import {
   ButtonGroupRenderParameter
@@ -15,19 +16,68 @@ const BUTTON_SIZE = Object.freeze({
 })
 
 /**
+ * 按钮左侧插槽
+ */
+const SLOT_BUTTON_LEFT = 'button-left'
+
+/**
+ * 获取按钮尺寸
+ * @param size
+ */
+function getButtonSize (size: string) {
+  return size === BUTTON_SIZE.middle ? BUTTON_SIZE.default : size
+}
+
+/**
+ * 渲染左侧按钮
+ * @param parameter
+ * @param t
+ */
+const renderLeftButton = (parameter: ButtonGroupRenderParameter, t: Function, slots: Slots) => {
+  const noInGroupClass = parameter.leftButtonInGroup ? '' : 'smart-button-common-space'
+  const vnodes: Array<any> = []
+  const buttonShow = parameter.buttonShow
+  const add = buttonShow.value.add
+  if (add.top) {
+    vnodes.push(
+      <a-button
+        class={noInGroupClass}
+        size={getButtonSize(parameter.size)}
+        type="primary">
+        <PlusOutlined/>
+        {t('smart.table.addButtonText')}
+      </a-button>
+    )
+  }
+  // 删除按钮
+  if (buttonShow.value.delete.top) {
+    vnodes.push(
+      <a-button
+        className={noInGroupClass}
+        size={getButtonSize(parameter.size)}
+        type="danger">
+        <DeleteOutlined/>
+        {t('smart.table.deleteButtonText')}
+      </a-button>
+    )
+  }
+  const buttonLeftSlot = slots[SLOT_BUTTON_LEFT]
+  if (buttonLeftSlot) {
+    vnodes.push(buttonLeftSlot())
+  }
+  // 处理插槽
+  return vnodes
+}
+
+/**
  * 渲染按钮组
  */
-export default function buttonGroupRender (parameter: ButtonGroupRenderParameter) {
-  // 没有按钮组返回空
-  if (!parameter.hasLeftButton&&!parameter.hasRightButton) {
-    return {
-      renderButtonGroup () {
-        return ''
-      }
-    }
-  }
+export default function buttonGroupRender (parameter: ButtonGroupRenderParameter, t: Function, slots: Slots) {
   // 编写渲染函数
   const renderButtonGroup = () => {
+    if (!parameter.hasLeftButton && !parameter.hasRightButton) {
+      return ''
+    }
     return (
       <div class="button-group-container">
         {
@@ -39,11 +89,25 @@ export default function buttonGroupRender (parameter: ButtonGroupRenderParameter
                   <a-button-group>
                     {
                       // 渲染左侧按钮
-                      renderLeftButton(parameter)
+                      renderLeftButton(parameter, t, slots)
                     }
                   </a-button-group>
-                ) : renderLeftButton(parameter)
+                ) : renderLeftButton(parameter, t, slots)
               }
+            </div>
+          ) : ''
+        }
+        {
+          // 渲染右侧按钮
+          parameter.hasRightButton ? (
+            <div class="button-group-right">
+              <div class="item">
+                <a-tooltip title={t('smart.table.columnConfig.tooltip')} placement="top">
+                  <div>
+                    abc
+                  </div>
+                </a-tooltip>
+              </div>
             </div>
           ) : ''
         }
@@ -55,26 +119,3 @@ export default function buttonGroupRender (parameter: ButtonGroupRenderParameter
     renderButtonGroup
   }
 }
-
-/**
- * 获取按钮尺寸
- * @param size
- */
-function getButtonSize(size: string) {
-  return size === BUTTON_SIZE.middle ? BUTTON_SIZE.default : size
-}
-
-const renderLeftButton = (parameter: ButtonGroupRenderParameter) => {
-  const noInGroupClass = parameter.leftButtonInGroup ? '' : 'smart-button-common-space'
-  const vnodes: Array<any> = []
-  const buttonShow = parameter.buttonShow;
-  const add = buttonShow.add
-  const t = parameter.t
-  if (add.top) {
-    vnodes.push(
-      <a-button icon="plus" class={noInGroupClass} size={getButtonSize(parameter.size)}
-                type="primary">{t('smart.table.addButtonText')}</a-button>
-    )
-  }
-}
-
